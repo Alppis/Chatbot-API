@@ -6,6 +6,9 @@ DEFAULT_DB_PATH = 'db/keywords.db'
 DEFAULT_SCHEMA = "db/keywords_schema_dump.sql"
 DEFAULT_DATA_DUMP = "db/keywords_data_dump.sql"
 
+'''
+Slightly modified from exercise1 database.py
+'''
 
 class Engine(object):
     '''
@@ -99,7 +102,7 @@ class Engine(object):
         Populate programmatically the tables from a dump file.
 
         :param dump:  path to the .sql dump file. If this parmeter is
-            None, then *db/forum_data_dump.sql* is utilized.
+            None, then *db/keywords_data_dump.sql* is utilized.
 
         '''
         keys_on = 'PRAGMA foreign_keys = ON'
@@ -118,7 +121,7 @@ class Engine(object):
     # METHODS TO CREATE THE TABLES PROGRAMMATICALLY WITHOUT USING SQL SCRIPT
     def create_keywords_table(self):
         '''
-        Create the table ``messages`` programmatically, without using .sql file.
+        Create the table ``keywords`` programmatically, without using .sql file.
 
         Print an error message in the console if it could not be created.
 
@@ -127,18 +130,6 @@ class Engine(object):
 
         '''
         keys_on = 'PRAGMA foreign_keys = ON'
-        """
-        stmnt = 'CREATE TABLE messages(message_id INTEGER PRIMARY KEY, \
-                    title TEXT, body TEXT, timestamp INTEGER, \
-                    ip TEXT, timesviewed INTEGER, \
-                    reply_to INTEGER, \
-                    user_nickname TEXT, user_id INTEGER, \
-                    editor_nickname TEXT, \
-                    FOREIGN KEY(reply_to) REFERENCES messages(message_id) \
-                    ON DELETE CASCADE, \
-                    FOREIGN KEY(user_id,user_nickname) \
-                    REFERENCES users(user_id, nickname) ON DELETE SET NULL)'
-        """
         stmnt = 'CREATE TABLE keywords(keyword TEXT PRIMARY KEY, \
                  response1 TEXT, response2 TEXT, header TEXT, \
                  username TEXT, cases INTEGER)'
@@ -159,7 +150,7 @@ class Engine(object):
 
 class Connection(object):
     '''
-    API to access the Forum database.
+    API to access the Keywords database.
 
     The sqlite3 connection instance is accessible to all the methods of this
     class through the :py:attr:`self.con` attribute.
@@ -260,20 +251,19 @@ class Connection(object):
         :type row: sqlite3.Row
         :return: a dictionary containing the following keys:
 
-        * ``messageid``: id of the message (int)
-        * ``title``: message's title
-        * ``body``: message's text
-        * ``timestamp``: UNIX timestamp (long integer) that specifies when
-          the message was created.
-        * ``replyto``: The id of the parent message. String with the format
-          msg-{id}. Its value can be None.
-        * ``sender``: The nickname of the message's creator.
-        * ``editor``: The nickname of the message's editor.
+        * ``keyword``: keywords of the message (primary)
+        * ``response1``: the first response
+        * ``response2``: the second response (optional)
+        * ``header``: header used for filtering (optional)
+        * ``username``: username used for filtering (optional)
+        * ``cases``: See if the keyword is case sensitive,
+        * 1 means positive, 0 negative (int)
 
         Note that all values in the returned dictionary are string unless
         otherwise stated.
 
         '''
+
         keyword_id = row['keyword']
         keyword_response1 = row['response1']
         if row['response2'] is not None:
@@ -307,10 +297,11 @@ class Connection(object):
         '''
         # Extracts the int which is the id for a message in the database
 
+        '''
         match = re.match(r'keyword', keyword_id)
         if match is None:
             raise ValueError("The keyword is malformed")
-
+        '''
         # messageid = int(match.group(1))
         # Activate foreign key support
         self.set_foreign_keys_support()
