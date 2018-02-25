@@ -4,13 +4,13 @@ Slightly modified from exercise1 api_test_tables tests
 '''
 
 import sqlite3, unittest, collections
-from Chatbot import src.database
+from src import database
 
 #Database path
 DB_PATH = 'db/keywords_test.db'
 ENGINE = database.Engine(DB_PATH)
 
-INITIAL_SIZE = 20
+INITIAL_SIZE = 5
 
 class CreateTablesTestCase(unittest.TestCase):
     '''
@@ -22,7 +22,7 @@ class CreateTablesTestCase(unittest.TestCase):
         '''
         Removes previous database file if exists and creates new database structure
         '''
-        print("Testing", cls._name_)
+        #print("Testing", cls._name_)
         ENGINE.remove_database()
         ENGINE.create_tables()
 
@@ -31,7 +31,7 @@ class CreateTablesTestCase(unittest.TestCase):
         '''
         Remove testing database
         '''
-        print ("Testing ended for ", cls._name_)
+        #print ("Testing ended for ", cls._name_)
         ENGINE.remove_database()
 
     def  setUp(self):
@@ -71,14 +71,14 @@ class CreateTablesTestCase(unittest.TestCase):
             result = c.fetchall()
             names = [tup[1] for tup in result]
             types = [tup[2] for tup in result]
-            real_names['keyword','response1','response2','header','username','cases']
-            real_types['TEXT','TEXT','TEXT','TEXT','TEXT','INTEGER']
-            self.assertEquals(names, real_names)
-            self.assertEquals(types, real_types)
+            real_names=['keyword','response1','response2','header','username','cases']
+            real_types=['TEXT','TEXT','TEXT','TEXT','TEXT','INTEGER']
+            self.assertEqual(names, real_names)
+            self.assertEqual(types, real_types)
     
     def test_keywords_table_created(self):
         '''
-        Checks that table has 20 keywords
+        Checks that table has 5 keywords
         '''
         print('('+self.test_keywords_table_created.__name__+')', \
                   self.test_keywords_table_created.__doc__)
