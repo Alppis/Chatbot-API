@@ -2,10 +2,16 @@ PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS keywords(
   keyword TEXT PRIMARY KEY,
-  response1 TEXT,
-  response2 TEXT,
+  cases INTEGER,
+  UNIQUE(keyword));
+CREATE TABLE IF NOT EXISTS responses(
+  responseid INTEGER PRIMARY KEY, 
+  response TEXT, 
+  keyword TEXT,
   header TEXT,
   username TEXT,
-  cases INTEGER);
+  FOREIGN KEY(keyword) REFERENCES keywords(keyword) ON DELETE CASCADE);
+
 COMMIT;
-PRAGMA foreign_keys=ON;
+PRAGMA foreign_keys=ON;  
+   

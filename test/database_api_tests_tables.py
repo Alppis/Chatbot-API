@@ -10,7 +10,8 @@ from src import database
 DB_PATH = 'db/keywords_test.db'
 ENGINE = database.Engine(DB_PATH)
 
-INITIAL_SIZE = 5
+KEYWORDS_SIZE = 5
+RESPONSES_SIZE = 7
 
 class CreateTablesTestCase(unittest.TestCase):
     '''
@@ -71,14 +72,14 @@ class CreateTablesTestCase(unittest.TestCase):
             result = c.fetchall()
             names = [tup[1] for tup in result]
             types = [tup[2] for tup in result]
-            real_names=['keyword','response1','response2','header','username','cases']
-            real_types=['TEXT','TEXT','TEXT','TEXT','TEXT','INTEGER']
+            real_names=['keyword', 'cases']
+            real_types=['TEXT','INTEGER']
             self.assertEqual(names, real_names)
             self.assertEqual(types, real_types)
     
     def test_keywords_table_created(self):
         '''
-        Checks that table has 5 keywords
+        Checks that the keywords table has 5 keywords
         '''
         print('('+self.test_keywords_table_created.__name__+')', \
                   self.test_keywords_table_created.__doc__)
@@ -97,8 +98,53 @@ class CreateTablesTestCase(unittest.TestCase):
             cur.execute(query)
             users = cur.fetchall()
             #assert
-            self.assertEqual(len(users), INITIAL_SIZE)
+            self.assertEqual(len(users), KEYWORDS_SIZE)
 
+    def test_responses_table_schema(self):
+        '''
+        Test that responses table has right schema
+        '''
+        print('('+self.test_responses_table_created.__name__+')', \
+                  self.test_responses_table_created.__doc__)
+
+        con = self.connection.con
+        with con:
+            c = con.cursor()
+
+            #get column informaton
+            c.execute('PRAGMA TABLE_INFO({})'.format('responses'))
+
+            #collect list about keywords
+            result = c.fetchall()
+            names = [tup[1] for tup in result]
+            types = [tup[2] for tup in result]
+            real_names=['responseid', 'response', 'keyword', 'header', 'username']
+            real_types=['INTEGER','TEXT', 'TEXT', 'TEXT', 'TEXT']
+            self.assertEqual(names, real_names)
+            self.assertEqual(types, real_types)
+
+    def test_responses_table_created(self):
+        '''
+        Checks that responses table has 7 keywords
+        '''
+        print('('+self.test_responses_table_created.__name__+')', \
+                  self.test_responses_table_created.__doc__)
+        #Create the SQL Statement
+        keys_on = 'PRAGMA foreign_keys = ON'
+        query = 'SELECT * FROM responses'
+        #Get the sqlite3 con from the Connection instance
+        con = self.connection.con
+        with con:
+            #cursor and row initialization
+            con.row_factory = sqlite3.Row
+            cur = con.cursor()
+            #support for foreign keys
+            cur.execute(keys_on)
+            #execute main SQL Statement
+            cur.execute(query)
+            users = cur.fetchall()
+            #assert
+            self.assertEqual(len(users), RESPONSES_SIZE)
     
 
 if __name__ == '__main__':

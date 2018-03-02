@@ -8,6 +8,8 @@ DEFAULT_DATA_DUMP = "db/keywords_data_dump.sql"
 
 '''
 Slightly modified from exercise1 database.py
+Engine class minus create table methods from exercise1
+Connection class foreign key methods from exercise1
 '''
 
 class Engine(object):
@@ -74,8 +76,7 @@ class Engine(object):
         with con:
             cur = con.cursor()
             cur.execute("DELETE FROM keywords")
-            # NOTE since we have ON DELETE CASCADE BOTH IN users_profile AND
-            # friends, WE DO NOT HAVE TO WORRY TO CLEAR THOSE TABLES.
+
 
     # METHODS TO CREATE AND POPULATE A DATABASE USING DIFFERENT SCRIPTS
     def create_tables(self, schema=None):
@@ -131,8 +132,36 @@ class Engine(object):
         '''
         keys_on = 'PRAGMA foreign_keys = ON'
         stmnt = 'CREATE TABLE keywords(keyword TEXT PRIMARY KEY, \
-                 response1 TEXT, response2 TEXT, header TEXT, \
-                 username TEXT, cases INTEGER)'
+                 cases INTEGER, UNIQUE(keyword))'
+        con = sqlite3.connect(self.db_path)
+        with con:
+            # Get the cursor object.
+            # It allows to execute SQL code and traverse the result set
+            cur = con.cursor()
+            try:
+                cur.execute(keys_on)
+                # execute the statement
+                cur.execute(stmnt)
+            except sqlite3.Error as excp:
+                print("Error %s:" % excp.args[0])
+                return False
+        return True
+
+    def create_responses_table(self):
+        '''
+        Create the table ``keywords`` programmatically, without using .sql file.
+
+        Print an error message in the console if it could not be created.
+
+        :return: ``True`` if the table was successfully created or ``False``
+            otherwise.
+
+        '''
+
+        keys_on = 'PRAGMA foreign_keys = ON'
+        stmnt = 'CREATE TABLE responses(responseid INTEGER PRIMARY KEY, \
+                response TEXT, keyword TEXT, header TEXT, username TEXT, \
+                FOREIGN KEY(keyword) REFERENCES keywords(keyword) ON DELETE CASCADE)'
         con = sqlite3.connect(self.db_path)
         with con:
             # Get the cursor object.
@@ -252,8 +281,6 @@ class Connection(object):
         :return: a dictionary containing the following keys:
 
         * ``keyword``: keywords of the message (primary)
-        * ``response1``: the first response
-        * ``response2``: the second response (optional)
         * ``header``: header used for filtering (optional)
         * ``username``: username used for filtering (optional)
         * ``cases``: See if the keyword is case sensitive,
@@ -264,25 +291,83 @@ class Connection(object):
 
         '''
 
+
         keyword_id = row['keyword']
-        keyword_response1 = row['response1']
-        if row['response2'] is not None:
-            keyword_response2 = row['response2']
-        else:
-            keyword_response2 = None
-        if row['header'] is not None:
-            keyword_header = row['header']
-        else:
-            keyword_header = None
-        if row['username'] is not None:
-            keyword_username = row['username']
-        else:
-            keyword_username = None
         keyword_cases = row['cases']
-        keyword = {'keyword': keyword_id, 'response1': keyword_response1,
-                   'response2': keyword_response2, 'header': keyword_header,
-                   'username': keyword_username, 'cases': keyword_cases}
+        keyword = {'keyword': keyword_id, 'cases': keyword_cases}
         return keyword
+
+    def _create_response_object(self, row):
+        '''
+        It takes a :py:class:`sqlite3.Row` and transform it into a dictionary.
+
+        :param row: The row obtained from the database.
+        :type row: sqlite3.Row
+        :return: a dictionary containing the following keys:
+
+        * ``response_id``: response identification number (primary)
+        * ``response``: the response
+        * ``keyword``: keyword that triggers the response
+        * ``header``: header used for filtering (optional)
+        * ``username``: username used for filtering (optional)
+
+        Note that all values in the returned dictionary are string unless
+        otherwise stated.
+
+        '''
+
+
+        response_id = row['responseid']
+        response_response = row['response']
+        response_keyword = row['keyword']
+        if row['header'] is not None:
+            response_header = row['header']
+        else:
+            response_header = None
+        if row['username'] is not None:
+            response_username = row['username']
+        else:
+            response_username = None
+        response = {'responseid': response_id, 'response': response_response,
+                    'keyword': response_keyword, 'header': response_header,
+                    'username': response_username}
+        return response
+
+    def modify_response(self, responseid, response, header, username):
+        '''
+        Modify the response, the header and the username of the response with id
+        ``responseid``
+
+        :param responseid: The id of the message to modify
+        :param response: the response
+        :param header: response header that is used for filtering
+        :param username: response username that is used for filtering
+        :return: the id of the edited response or None if the response was
+              not found. .
+        '''
+
+        query1 = 'SELECT response, header, username from responses WHERE responseid = ?'
+        updated = 'UPDATE responses SET response=?, header=?, username=? WHERE responseid=?'
+
+        _response = response
+        _header = header
+        _username = username
+        _response_id = responseid
+
+        # Activate foreign key support
+        self.set_foreign_keys_support()
+        # Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        pvalue = (_response, _header, _username, _response_id)
+        cur.execute(updated, pvalue)
+        self.con.commit()
+        if (cur.rowcount < 1):
+            return None
+        return responseid
+
+
+
 
     def get_keyword(self, keyword_id):
         '''
@@ -297,11 +382,7 @@ class Connection(object):
         '''
         # Extracts the int which is the id for a message in the database
 
-        '''
-        match = re.match(r'keyword', keyword_id)
-        if match is None:
-            raise ValueError("The keyword is malformed")
-        '''
+
         # messageid = int(match.group(1))
         # Activate foreign key support
         self.set_foreign_keys_support()
@@ -323,27 +404,19 @@ class Connection(object):
 
     def get_header(self, header):
         '''
-        Extracts a message from the database.
+        Extracts responses with wanted header from the database.
 
         :param messageid: The header
-        :return: A dictionary with the format provided in
-            :py:meth:`_create_keyword_object` or None if the message with target
-            id does not exist.
-        :raises ValueError: when ``header`` is not well formed
-
+        :return: List of keyword with the wanted header
         '''
         # Extracts the int which is the id for a message in the database
-        """
-        match = re.match(r'keyword', keyword_id)
-        if match is None:
-            raise ValueError("The keyword is malformed")
-        """
+
 
         # messageid = int(match.group(1))
         # Activate foreign key support
         self.set_foreign_keys_support()
         # Create the SQL Query
-        query = 'SELECT * FROM keywords WHERE header = ?'
+        query = 'SELECT response FROM resposes WHERE header = ?'
         # Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
@@ -352,43 +425,19 @@ class Connection(object):
         cur.execute(query, pvalue)
         # Process the response.
         # Just one row is expected
-        row = cur.fetchone()
-        if row is None:
-            return None
-        # Build the return object
-        return self._create_keyword_object(row)
-
-    def get_header(self, header):
-        '''
-        Extracts a message from the database.
-
-        :param username: The header
-        :return: List of keywords with the wanted header
-        '''
-
-        # Activate foreign key support
-        self.set_foreign_keys_support()
-        # Create the SQL Query
-        query = 'SELECT keyword FROM keywords WHERE header = ?'
-        # Cursor and row initialization
-        self.con.row_factory = sqlite3.Row
-        cur = self.con.cursor()
-        # Execute main SQL Statement
-        pvalue = (header,)
-        cur.execute(query, pvalue)
-        # Process the response.
         rows = cur.fetchall()
         if rows is None:
             return None
         responses = []
         for row in rows:
-            responses.append(self._create_keyword_object_object(row))
+            responses.append(self._create_response_object(row))
         # Build the return object
-        return self._create_keyword_object(row)
+        return responses
+
 
     def get_username(self, username):
         '''
-        Extracts a message from the database.
+        Extracts usename's responses from the database.
 
         :param username: The username we are looking for
         :return: List of keywords with the wanted username
@@ -397,7 +446,7 @@ class Connection(object):
         # Activate foreign key support
         self.set_foreign_keys_support()
         # Create the SQL Query
-        query = 'SELECT keyword FROM keywords WHERE username = ?'
+        query = 'SELECT response FROM responses WHERE username = ?'
         # Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
@@ -410,9 +459,40 @@ class Connection(object):
             return None
         responses = []
         for row in rows:
-            responses.append(self._create_keyword_object_object(row))
+            responses.append(self._create_response_object(row))
         # Build the return object
-        return self._create_keyword_object(row)
+        return responses
+
+    def get_response(self, keyword):
+        '''
+        Extracts response with wanted keyword from the database
+
+        :param keyword: keyword we are looking for
+        :return: List of responses with the wanted keyword
+        '''
+
+        # Activate foreign key support
+        self.set_foreign_keys_support()
+        # Create the SQL Query
+        query = 'SELECT * FROM responses WHERE keyword = ?'
+        # Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        # Execute main SQL Statement
+        pvalue = (keyword,)
+        cur.execute(query, pvalue)
+        # Process the response.
+        rows = cur.fetchall()
+        if rows is None:
+            return None
+        responses = []
+        for row in rows:
+            responses.append(self._create_response_object(row))
+        # Build the return object
+        return responses
+
+
+
 
     def is_case_sensitive(self, keyword):
         '''
@@ -452,3 +532,10 @@ class Connection(object):
         :return: True if the username is in the database. False otherwise.
         '''
         return self.get_username(username) is not None
+
+    def contains_response(self, keyword):
+        '''
+        :param keyword: keyword we want to use
+        :return: True if keyword contains response in database. False otherwise.
+        '''
+        return self.get_response(keyword) is not None

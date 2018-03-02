@@ -1,5 +1,13 @@
-INSERT INTO "keywords" VALUES('MyWords','Jolly Good',NULL,NULL,NULL, 0);
-INSERT INTO "keywords" VALUES('Tux','Linux is best!', 'Debian or Red Hat?','Shebang','LinuxPenguin',1);
-INSERT INTO "keywords" VALUES('robot','It is Robot with upper case!',NULL,NULL,NULL,1);
-INSERT INTO "keywords" VALUES('Ni!','We are the knights who say Ni!','Ni!','Monty',NULL,0);
-INSERT INTO "keywords" VALUES('Berserk','Griffith did nothing wrong!',NULL,NULL,'GUTS',0);
+INSERT INTO "keywords" VALUES('MyWords',0);
+INSERT INTO "keywords" VALUES('Tux',1);
+INSERT INTO "keywords" VALUES('robot',1);
+INSERT INTO "keywords" VALUES('Ni!',0);
+INSERT INTO "keywords" VALUES('Berserk',0);
+
+INSERT INTO "responses" VALUES(1,'Jolly Good!','MyWords',NULL,NULL);
+INSERT INTO "responses" VALUES(2,'Linux is best!','Tux','Shebang','LinuxPenguin');
+INSERT INTO "responses" VALUES(3,'Debian or Red Hat?','Tux','Shebang','LinuxPenguin');
+INSERT INTO "responses" VALUES(4,'It is Mr. Robot with upper case!','robot',NULL,NULL);
+INSERT INTO "responses" VALUES(5,'We are the knights who say Ni!','Ni!','Monty',NULL);
+INSERT INTO "responses" VALUES(6,'Ni!','Ni!','Monty',NULL);
+INSERT INTO "responses" VALUES(7,'Griffith did nothing wrong!','Berserk',NULL,'GUTS');

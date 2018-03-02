@@ -10,6 +10,16 @@ from src import database
 DB_PATH = 'db/keywords_test.db'
 ENGINE = database.Engine(DB_PATH)
 
+KEYWORD1_ID = 'MyWords'
+KEYWORD1 = {'keyword': KEYWORD1_ID,
+        'cases': 0}
+
+KEYWORD2_ID = 'Tux'
+KEYWORD2 = {'keyword': KEYWORD2_ID,
+        'cases': 1}
+
+WRONG_KEYWORD_ID = 'Troll'
+
 class KeywordTestCase(unittest.TestCase):
     '''
     Tests created tables
@@ -53,13 +63,13 @@ class KeywordTestCase(unittest.TestCase):
 
     def test_create_keyword_object(self):
         '''
-        Checks that method _create_keyword_object works returning adequate values for the first database row
+        Checks that method _create_keyword_object works returning adequate keyword
         '''
         print('('+self.test_create_keyword_object.__name__+')', \
               self.test_create_keyword_object.__doc__)
         #Create the SQL Statement
         keys_on = 'PRAGMA foreign_keys = ON'
-        query = 'SELECT * FROM keywords WHERE keyword_id = 1'
+        query = 'SELECT * FROM keywords WHERE keyword = ?'
         #Get the sqlite3 con from the Connection instance
         con = self.connection.con
         with con:
@@ -69,16 +79,17 @@ class KeywordTestCase(unittest.TestCase):
             #Provide support for foreign keys
             cur.execute(keys_on)
             #Execute main SQL Statement
-            cur.execute(query)
+            pvalue = (KEYWORD1_ID, )
+            cur.execute(query, pvalue)
             #Extrac the row
             row = cur.fetchone()
         #Test the method
         keyword = self.connection._create_keyword_object(row)
-        self.assertDictContainsSubset(keyword, keyword1)
+        self.assertDictContainsSubset(keyword, KEYWORD1)
 
     def test_get_keyword(self):
         '''
-        Test get_keyword with id msg-1 and msg-10
+        Test get_keyword with
         '''
         print('('+self.test_get_keyword.__name__+')', \
               self.test_get_keyword.__doc__)
@@ -87,25 +98,16 @@ class KeywordTestCase(unittest.TestCase):
         self.assertDictContainsSubset(keyword, KEYWORD1)
         keyword = self.connection.get_keyword(KEYWORD2_ID)
         self.assertDictContainsSubset(keyword, KEYWORD2)
-    
-    def test_get_keyword_malformedid(self):
-        '''
-        Test get_keyword with id 1 (malformed)
-        '''
-        print('('+self.test_get_keyword_malformedid.__name__+')', \
-              self.test_get_keyword_malformedid.__doc__)
-        #Test with an existing keyword
-        with self.assertRaises(ValueError):
-            self.connection.get_keyword('1')
+
 
     def test_get_keyword_noexistingid(self):
         '''
-        Test get_keyword with msg-200 (no-existing)
+        Test get_keyword with Troll (no-existing)
         '''
         print('('+self.test_get_keyword_noexistingid.__name__+')',\
               self.test_get_keyword_noexistingid.__doc__)
         #Test with an existing keyword
-        keyword = self.connection.get_keyword(WRONG_keyword_ID)
+        keyword = self.connection.get_keyword(WRONG_KEYWORD_ID)
         self.assertIsNone(keyword)
 
     def test_contains_keyword(self):
@@ -115,8 +117,8 @@ class KeywordTestCase(unittest.TestCase):
         print('('+self.test_contains_keyword.__name__+')',\
               self.test_contains_keyword.__doc__)
         #Test with an existing keyword
-        keyword = self.connection.get_keyword(KEYWORD_ID)
-        self.assertIsNotNone(keyword_id)
+        keyword = self.connection.get_keyword(KEYWORD1_ID)
+        self.assertIsNotNone(KEYWORD1_ID)
 
     def test_contains_keyword_notexisting(self):
         '''
@@ -125,8 +127,9 @@ class KeywordTestCase(unittest.TestCase):
         print('('+self.test_contains_keyword.__name__+')',\
               self.test_contains_keyword.__doc__)
         #Test with an existing keyword
-        keyword = self.connection.get_keyword(WRONG_keyword_ID)
-        self.assertIsNone(keyword_id)
+        #self.assertFalse(self.connection.contains_user(USER_WRONG_NICKNAME))
+        keyword = self.connection.get_keyword(WRONG_KEYWORD_ID)
+        self.assertFalse(keyword)
 
 if __name__ == '__main__':
     print('Start running keyword tests')
