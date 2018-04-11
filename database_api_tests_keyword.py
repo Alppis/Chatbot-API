@@ -52,6 +52,8 @@ class KeywordTestCase(unittest.TestCase):
             #create connection instance
             self.connection = ENGINE.connect()
         except Exception as e:
+            print("!!!!! CONNECTION FAILED!!!")
+            print(e)
             ENGINE.clear()
 
     def tearDown(self):

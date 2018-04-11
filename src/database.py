@@ -147,6 +147,35 @@ class Engine(object):
                 return False
         return True
 
+    def create_users_table(self):
+        '''
+        Create the table ``users`` programmatically, without using .sql file.
+
+        Print an error message in the console if it could not be created.
+
+        :return: ``True`` if the table was successfully created or ``False``
+            otherwise.
+
+        '''
+
+        keys_on = 'PRAGMA foreign_keys = ON'
+        stmnt = 'CREATE TABLE users(username TEXT PRIMARY KEY, \
+                   lastlogin TEXT, replies INTEGER, latestreply TEXT, \
+                   UNIQUE(username))'
+        con = sqlite3.connect(self.db_path)
+        with con:
+            # Get the cursor object.
+            # It allows to execute SQL code and traverse the result set
+            cur = con.cursor()
+            try:
+                cur.execute(keys_on)
+                # execute the statement
+                cur.execute(stmnt)
+            except sqlite3.Error as excp:
+                print("Error %s:" % excp.args[0])
+                return False
+        return True
+
     def create_responses_table(self):
         '''
         Create the table ``keywords`` programmatically, without using .sql file.
@@ -161,7 +190,38 @@ class Engine(object):
         keys_on = 'PRAGMA foreign_keys = ON'
         stmnt = 'CREATE TABLE responses(responseid INTEGER PRIMARY KEY, \
                 response TEXT, keyword TEXT, header TEXT, username TEXT, \
-                FOREIGN KEY(keyword) REFERENCES keywords(keyword) ON DELETE CASCADE)'
+                FOREIGN KEY(keyword) REFERENCES keywords(keyword) ON DELETE CASCADE,\
+                FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)'
+        con = sqlite3.connect(self.db_path)
+        with con:
+            # Get the cursor object.
+            # It allows to execute SQL code and traverse the result set
+            cur = con.cursor()
+            try:
+                cur.execute(keys_on)
+                # execute the statement
+                cur.execute(stmnt)
+            except sqlite3.Error as excp:
+                print("Error %s:" % excp.args[0])
+                return False
+        return True
+
+    def create_statistics_table(self):
+        '''
+        Create the table ``statistics`` programmatically, without using .sql file.
+
+        Print an error message in the console if it could not be created.
+
+        :return: ``True`` if the table was successfully created or ``False``
+            otherwise.
+
+        '''
+
+        keys_on = 'PRAGMA foreign_keys = ON'
+        stmnt = 'CREATE TABLE statistics(statisticid INTEGER PRIMARY KEY, \
+                keyword TEXT, keywordused INTEGER, lastuse TEXT, latestuser TEXT, \
+                FOREIGN KEY(keyword) REFERENCES keywords(keyword) ON DELETE CASCADE,\
+                FOREIGN KEY(latestuser) REFERENCES users(username) ON DELETE CASCADE)'
         con = sqlite3.connect(self.db_path)
         with con:
             # Get the cursor object.
@@ -472,7 +532,7 @@ class Connection(object):
         updated = 'UPDATE statistics SET keywordused=?, lastuse=?, latestuser=? WHERE statisticid=?'
 
         _keywordused = used + 1
-        _lastuse = time.strftime("%Y-%m-%d %H:%M")
+        _lastuse = time.strftime("%Y-%m-%d %H:%M:%S")
         _latestuser = username
         _statisticid = id
 
@@ -554,7 +614,7 @@ class Connection(object):
         return responses
 
 
-    def get_username(self, username):
+    def get_username_responses(self, username):
         '''
         Extracts usename's responses from the database.
 
