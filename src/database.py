@@ -333,6 +333,71 @@ class Connection(object):
                     'username': response_username}
         return response
 
+    def _create_user_object(self, row):
+        '''
+        It takes a :py:class:`sqlite3.Row` and transform it into a dictionary.
+
+        :param row: The row obtained from the database.
+        :type row: sqlite3.Row
+        :return: a dictionary containing the following keys:
+
+        * ``username``: username (primary)
+        * ``lastlogin``: last login time (YYYY-MM-DD HH:MM)
+        * ``replies``: amount of replies user has made
+        * ``latestreply``: last message the user has made
+
+        Note that all values in the returned dictionary are string unless
+        otherwise stated.
+
+        '''
+
+
+        users_username = row['username']
+        users_lastlogin = row['lastlogin']
+        users_replies = row['replies']
+        if row['latestsreply'] is not None:
+            users_latestreply = row['latestreply']
+        else:
+            users_latestreply = None
+        user = {'username': users_username, 'lastlogin': users_lastlogin,
+                    'resplies': users_replies, 'latestreply': users_latestreply}
+        return user
+
+    def _create_statistic_object(self, row):
+        '''
+        It takes a :py:class:`sqlite3.Row` and transform it into a dictionary.
+
+        :param row: The row obtained from the database.
+        :type row: sqlite3.Row
+        :return: a dictionary containing the following keys:
+
+        * ``statisticsid``: identification number of statistic (primary)
+        * ``keyword``: keyword tied to statisticsid
+        * ``keywordused``: amount of keyword has been used
+        * ``latestuse``: last use of keyword in time (YYYY-MM-DD HH:MM)
+        * ``latestuser``: last user that has used the keyword
+
+        Note that all values in the returned dictionary are string unless
+        otherwise stated.
+
+        '''
+
+        statistics_id = row['statisticid']
+        statistics_keyword = row['keyword']
+        statistics_keywordused = row['keywordused']
+        if row['lastuse'] is not None:
+            statistics_lastuse = row['lastuse']
+        else:
+            statistics_lastuse = None
+        if row['latestuser'] is not None:
+            statistics_latestuser = row['latestuser']
+        else:
+            statistics_latestuser = None
+        statistic = {'statisticid': statistics_id, 'keyword': statistics_keyword,
+                'keyworduser': statistics_keywordused , 'lastuse': statistics_lastuse,
+                'latestuser': statistics_latestuser}
+        return statistic
+
     def modify_response(self, responseid, response, header, username):
         '''
         Modify the response, the header and the username of the response with id
@@ -366,8 +431,62 @@ class Connection(object):
             return None
         return responseid
 
+    def modify_username(self, username, newusername):
+        '''
+        Modify users username
 
+        :param username: the username that we want to change
+        :param newusername: new username
+        :return: the new username or None if the user was
+              not found. .
+        '''
 
+        updated = 'UPDATE users SET username=? WHERE username=?'
+
+        _username_new = newusername
+        _username_old = username
+
+        # Activate foreign key support
+        self.set_foreign_keys_support()
+        # Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        pvalue = (_username_new, _username_old)
+        cur.execute(updated, pvalue)
+        self.con.commit()
+        if (cur.rowcount < 1):
+            return None
+        return newusername
+
+    def modify_statistic(self, id, username=None):
+        '''
+        Modify keyword's statistics
+
+        :param id: Id of the statistic
+        :param username: user that has used the keyword. Empty if anonymous
+        :return: statisticid or None if the statistic was
+              not found. .
+        '''
+
+        used = "SELECT keywordused FROM statistics where statisticid={}".format(id)
+        updated = 'UPDATE statistics SET keywordused=?, lastuse=?, latestuser=? WHERE statisticid=?'
+
+        _keywordused = used + 1
+        _lastuse = time.strftime("%Y-%m-%d %H:%M")
+        _latestuser = username
+        _statisticid = id
+
+        # Activate foreign key support
+        self.set_foreign_keys_support()
+        # Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        pvalue = (_keywordused, _lastuse, _latestuser, _statisticid)
+        cur.execute(updated, pvalue)
+        self.con.commit()
+        if (cur.rowcount < 1):
+            return None
+        return id
 
     def get_keyword(self, keyword_id):
         '''
@@ -491,6 +610,61 @@ class Connection(object):
         # Build the return object
         return responses
 
+    def get_user(self, username):
+        '''
+        Extracts userdata with wanted username from the database
+
+        :param username: username we are looking for
+
+        :return: A dictionary with the format provided in
+            :py:meth:`_create_user_object` or None if the message with target
+            id does not exist.
+        '''
+
+        # Activate foreign key support
+        self.set_foreign_keys_support()
+        # Create the SQL Query
+        query = 'SELECT * FROM users WHERE username = ?'
+        # Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        # Execute main SQL Statement
+        pvalue = (username,)
+        cur.execute(query, pvalue)
+        # Process the response.
+        row = cur.fetchone()
+        if row is None:
+            return None
+        # Build the return object
+        return self._create_user_object(row)
+
+    def get_statistic(self, keyword):
+        '''
+        Extracts statistic with wanted keyword from the database
+
+        :param keyword: keyword which statistic we want
+
+        :return: A dictionary with the format provided in
+            :py:meth:`_create_statistic_object` or None if the statistic with target
+            keyword does not exist.
+        '''
+
+        # Activate foreign key support
+        self.set_foreign_keys_support()
+        # Create the SQL Query
+        query = 'SELECT * FROM statistics WHERE keyword = ?'
+        # Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        # Execute main SQL Statement
+        pvalue = (keyword,)
+        cur.execute(query, pvalue)
+        # Process the response.
+        row = cur.fetchone()
+        if row is None:
+            return None
+        # Build the return object
+        return self._create_statistic_object(row)
 
 
 
@@ -531,7 +705,7 @@ class Connection(object):
         :param username: the username we are looking for
         :return: True if the username is in the database. False otherwise.
         '''
-        return self.get_username(username) is not None
+        return self.get_user(username) is not None
 
     def contains_response(self, keyword):
         '''
