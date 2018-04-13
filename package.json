@@ -1,0 +1,27 @@
+{
+  "name": "chatbot",
+  "version": "0.0.1",
+  "description": "Chatbot application backend",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://Alppis@stash.atlassian.virtues.fi/scm/pwp26/chatbot.git"
+  },
+  "keywords": [
+    "chatbot",
+    "backend"
+  ],
+  "author": "PWP26",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.17.3"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "sqlite3": "^4.0.0"
+  }
+}

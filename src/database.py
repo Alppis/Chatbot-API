@@ -3,8 +3,8 @@ import time, sqlite3, re, os
 
 # Default paths for .db and .sql files to create and populate the database.
 DEFAULT_DB_PATH = 'db/keywords.db'
-DEFAULT_SCHEMA = "db/keywords_schema_dump.sql"
-DEFAULT_DATA_DUMP = "db/keywords_data_dump.sql"
+DEFAULT_SCHEMA = 'db/keywords_schema_dump.sql'
+DEFAULT_DATA_DUMP = 'db/keywords_data_dump.sql'
 
 '''
 Slightly modified from exercise1 database.py
@@ -114,10 +114,13 @@ class Engine(object):
         # Populate database from dump
         if dump is None:
             dump = DEFAULT_DATA_DUMP
-        with open(dump, encoding="utf-8") as f:
-            sql = f.read()
-            cur = con.cursor()
-            cur.executescript(sql)
+        try:
+            with open(dump, encoding="utf-8") as f:
+                sql = f.read()
+                cur = con.cursor()
+                cur.executescript(sql)
+        finally:
+            con.close()
 
     # METHODS TO CREATE THE TABLES PROGRAMMATICALLY WITHOUT USING SQL SCRIPT
     def create_keywords_table(self):
@@ -259,15 +262,20 @@ class Connection(object):
     def __init__(self, db_path):
         super(Connection, self).__init__()
         self.con = sqlite3.connect(db_path)
+        self._isclosed = False
+
+    def isclosed(self):
+        return self._isclosed
 
     def close(self):
         '''
         Closes the database connection, commiting all changes.
 
         '''
-        if self.con:
+        if self.con and not self._isclosed:
             self.con.commit()
             self.con.close()
+            self._isclosed = True
 
     # FOREIGN KEY STATUS
     def check_foreign_keys_status(self):

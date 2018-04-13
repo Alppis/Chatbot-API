@@ -23,16 +23,16 @@ class CreateTablesTestCase(unittest.TestCase):
         '''
         Removes previous database file if exists and creates new database structure
         '''
-        #print("Testing", cls._name_)
+        print("Testing", cls._name_)
         ENGINE.remove_database()
-        ENGINE.create_tables()
+        #ENGINE.create_tables()
 
     @classmethod
     def tearDownClass(cls):
         '''
         Remove testing database
         '''
-        #print ("Testing ended for ", cls._name_)
+        print ("Testing ended for ", cls._name_)
         ENGINE.remove_database()
 
     def  setUp(self):
