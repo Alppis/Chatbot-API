@@ -15,10 +15,10 @@ RESPONSE1_RESPONSE = 'Jolly Good!'
 RESPONSE1_ID = 1
 RESPONSE1 = {'responseid': RESPONSE1_ID, 'response': RESPONSE1_RESPONSE,
             'keyword': KEYWORD1_ID, 'header': None,
-            'username': None}
+            'username': 'Anonymous'}
 RESPONSE1_MODIFIED = {'responseid': RESPONSE1_ID, 'response': 'new response',
                      'keyword': KEYWORD1_ID, 'header': "new header",
-                     'username': 'new username'}
+                     'username': 'LinuxPenguin'}
 
 KEYWORD2_ID = 'Tux'
 RESPONSE2_RESPONSE = 'Linux is best!'
@@ -134,7 +134,7 @@ class KeywordTestCase(unittest.TestCase):
         print('(' + self.test_modify_response.__name__ + ')', \
               self.test_modify_response.__doc__)
         resp = self.connection.modify_response(RESPONSE1_ID, "new response",
-                                              "new header", "new username")
+                                              "new header", "LinuxPenguin")
         self.assertEqual(resp, RESPONSE1_ID)
         # Check that the responses has been really modified through a get
         resp2 = self.connection.get_response(KEYWORD1_ID)

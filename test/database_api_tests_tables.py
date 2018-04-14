@@ -7,7 +7,7 @@ import sqlite3, unittest, collections
 from src import database
 
 #Database path
-DB_PATH = 'db/keywords_test.db'
+DB_PATH = 'db/keywords.db'
 ENGINE = database.Engine(DB_PATH)
 
 KEYWORDS_SIZE = 5
@@ -45,6 +45,8 @@ class CreateTablesTestCase(unittest.TestCase):
             #create connection instance
             self.connection = ENGINE.connect()
         except Exception as e:
+            print("!!!CONNCETION FAILED!!!")
+            print(e)
             ENGINE.clear()
 
     def tearDown(self):

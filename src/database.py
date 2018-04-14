@@ -135,7 +135,7 @@ class Engine(object):
         '''
         keys_on = 'PRAGMA foreign_keys = ON'
         stmnt = 'CREATE TABLE keywords(keyword TEXT PRIMARY KEY, \
-                 cases INTEGER, UNIQUE(keyword))'
+                 cases INTEGER)'
         con = sqlite3.connect(self.db_path)
         with con:
             # Get the cursor object.
@@ -163,8 +163,7 @@ class Engine(object):
 
         keys_on = 'PRAGMA foreign_keys = ON'
         stmnt = 'CREATE TABLE users(username TEXT PRIMARY KEY, \
-                   lastlogin TEXT, replies INTEGER, latestreply TEXT, \
-                   UNIQUE(username))'
+                   lastlogin TEXT, replies INTEGER, latestreply TEXT)'
         con = sqlite3.connect(self.db_path)
         with con:
             # Get the cursor object.
@@ -423,12 +422,12 @@ class Connection(object):
         users_username = row['username']
         users_lastlogin = row['lastlogin']
         users_replies = row['replies']
-        if row['latestsreply'] is not None:
+        if row['latestreply'] is not None:
             users_latestreply = row['latestreply']
         else:
             users_latestreply = None
         user = {'username': users_username, 'lastlogin': users_lastlogin,
-                    'resplies': users_replies, 'latestreply': users_latestreply}
+                    'replies': users_replies, 'latestreply': users_latestreply}
         return user
 
     def _create_statistic_object(self, row):

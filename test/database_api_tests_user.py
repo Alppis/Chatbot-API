@@ -87,7 +87,7 @@ class UserTestCase(unittest.TestCase):
             row = cur.fetchone()
         #Test the method
         user = self.connection._create_user_object(row)
-        self.assertDictContainsSubset(user, USERNAME)
+        self.assertDictContainsSubset(user, USER1)
 
     def test_get_user(self):
         '''
@@ -97,17 +97,17 @@ class UserTestCase(unittest.TestCase):
               self.test_get_user.__doc__)
         #Test with an existing username
         user = self.connection.get_user(USERNAME1)
-        self.assertDictContainsSubset(user, USERNAME1)
+        self.assertDictContainsSubset(user, USER1)
         user = self.connection.get_user(USERNAME2)
-        self.assertDictContainsSubset(user, USERNAME2)
+        self.assertDictContainsSubset(user, USER2)
 
 
     def test_get_user_noexistinguser(self):
         '''
         Test get_user with Troll (no-existing)
         '''
-        print('('+self.test_get_user_noexistingid.__name__+')',\
-              self.test_get_user_noexistingid.__doc__)
+        print('('+self.test_get_user_noexistinguser.__name__+')',\
+              self.test_get_user_noexistinguser.__doc__)
         #Test with an no-existing username
         user = self.connection.get_user(WRONG_USERNAME)
         self.assertIsNone(user)
