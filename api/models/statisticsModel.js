@@ -1,8 +1,6 @@
-'use strict';
-
 const Model = require('objection').Model;
-const Keywords = require('./keywords');
-const Users = require('./users');
+const Keywords = require('../models/keywordsModel');
+const Users = require('../models/usersModel');
 
 class Statistics extends Model {
     //Required properties

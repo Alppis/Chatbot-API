@@ -1,5 +1,3 @@
-'use strict';
-
 const Model = require('objection').Model;
 
 class Keywords extends Model {

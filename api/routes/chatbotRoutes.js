@@ -1,11 +1,7 @@
-'use strict';
-export default function (app) {
-    var chatbot = require('../controllers/chatbotController');
+module.exports = function (app) {
+    const chatbot = require('../controllers/chatbotController');
 
-    //routes
-    app.route('/responses') //to be changed
-        .get(chatbot.get_responses)
-        .post(chatbot.add_respnse);
-
+    //Defines simple route
+    app.get('/', (req, res) => res.send('Chatbot API v0.0.1'));
     //todo: add routes to all endpoints
 };

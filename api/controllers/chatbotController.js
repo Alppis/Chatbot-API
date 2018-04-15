@@ -1,12 +1,11 @@
 //Code from ObjectionJS documentation https://vincit.github.io/objection.js
 //and ES6 example project https://github.com/Vincit/objection.js/tree/master/examples/express-es6
-'use strict'
 
 const {transaction} = require('objection');
-const Keywords = require('./api/models/Keywords');
-const Users = require('./api/models/Users');
-const Responses = require('./api/models/Responses');
-const Statistics = require('./api/models/Statistics');
+const Keywords = require('../models/keywordsModel');
+const Users = require('../models/usersModel');
+const Responses = require('../models/responsesModel');
+const Statistics = require('../models/statisticsModel');
 
 module.exports = router => {
     //Get all keywords
@@ -104,4 +103,11 @@ module.exports = router => {
 
         res.send(statistic);
     });
+
+    //Error handling. Handled in server.js
+    function createStatusCodeError(statusCode) {
+        return Object.assign(new Error(), {
+            statusCode
+        });
+    }
 }
