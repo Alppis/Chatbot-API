@@ -20,7 +20,7 @@ module.exports = router => {
     });
 
     //Get single keyword (may need changes to naming)
-    router.get('/keywords', async (req, res) => {
+    router.get('/keywords/:keyword', async (req, res) => {
         const keyword = await Keywords.query()
          .skipUndefined()
          .where('keyword', req.query.keyword)
@@ -62,7 +62,14 @@ module.exports = router => {
 
     //Get single response (may need changes to naming)
     router.get('/responses/:id', async (req, res) => {
-        const response = await Responses.query().findById(req.params.id);
+        /*const response = await Responses.query().findById(req.params.id);*/
+        /***********************************/
+        /********NOT WORKING CORRECTLY******/
+        /***********************************/
+
+        const response = await Responses.query()
+         .skipUndefined()
+         .where('responseid', '=', 'Responses.responseid');
 
         if (!response) {
             throw createStatusCodeError(404);
@@ -110,4 +117,45 @@ module.exports = router => {
             statusCode
         });
     }
+
+    //Get all users
+    router.get('/users', async (req, res) => {
+        const user = await Users.query();
+
+        if (!user) {
+            throw createStatusCodeError(404);
+        }
+
+        res.send(user);
+    });
+
+    //Get single user (may need changes to naming)
+    router.get('/users/:user', async (req, res) => {
+        const user = await Users.query()
+         .skipUndefined()
+         .where('user', req.query.user)
+
+         res.send(user);
+    });
+
+    //Modify single user //TODO\\
+
+    //Remove single user (may need changes to naming)
+    router.delete('/users/:user', async (req, res) => {
+        await Users.query()
+        .delete()
+        .where('user', req.query.keyword)
+
+        res.send({});
+    });
+
+    //Modify users //TODO\\
+
+    //Add new user
+    router.post('/users', async (req, res) => {
+        const user = await Users.query();
+
+        const addUser = await user.insert(req.body);
+        res.send(addUser);
+    });
 }
