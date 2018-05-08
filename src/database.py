@@ -134,8 +134,8 @@ class Engine(object):
 
         '''
         keys_on = 'PRAGMA foreign_keys = ON'
-        stmnt = 'CREATE TABLE keywords(keyword TEXT PRIMARY KEY, \
-                 cases INTEGER)'
+        stmnt = 'CREATE TABLE keywords(keywordid INTEGER PRIMARY KEY, keyword TEXT, \
+                 cases INTEGER, UNIQUE(keyword))'
         con = sqlite3.connect(self.db_path)
         with con:
             # Get the cursor object.
@@ -163,7 +163,7 @@ class Engine(object):
 
         keys_on = 'PRAGMA foreign_keys = ON'
         stmnt = 'CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT, \
-                   lastlogin TEXT, replies INTEGER, latestreply TEXT)'
+                   lastlogin TEXT, replies INTEGER, latestreply TEXT, UNIQUE(username))'
         con = sqlite3.connect(self.db_path)
         with con:
             # Get the cursor object.
@@ -359,9 +359,10 @@ class Connection(object):
         '''
 
 
-        keyword_id = row['keyword']
+        keyword_id = row['keywordid']
+        keyword_word = row['keyword']
         keyword_cases = row['cases']
-        keyword = {'keyword': keyword_id, 'cases': keyword_cases}
+        keyword = {'keywordid': keyword_id, 'keyword': keyword_word, 'cases': keyword_cases}
         return keyword
 
     def _create_response_object(self, row):
@@ -555,11 +556,11 @@ class Connection(object):
             return None
         return id
 
-    def get_keyword(self, keyword_id):
+    def get_keyword(self, keyword_word):
         '''
         Extracts a message from the database.
 
-        :param keyword_id: The keyword.
+        :param keyword_word: The keyword.
         :return: A dictionary with the format provided in
             :py:meth:`_create_keyword_object` or None if the message with target
             id does not exist.
@@ -578,7 +579,7 @@ class Connection(object):
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
         # Execute main SQL Statement
-        pvalue = (keyword_id,)
+        pvalue = (keyword_word,)
         cur.execute(query, pvalue)
         # Process the response.
         # Just one row is expected
@@ -786,7 +787,7 @@ class Connection(object):
         :param keyword_id: the keyword we are looking for
         :return: True if the keyword is in the database. False otherwise.
         '''
-        return self.get_keyword(keyword_id) is not None
+        return self.get_keyword(keyword_word) is not None
 
     def contains_header(self, header):
         '''

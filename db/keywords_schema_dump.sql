@@ -1,8 +1,10 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS keywords(
-  keyword TEXT PRIMARY KEY,
-  cases INTEGER);
+  keywordid INTEGER PRIMARY KEY,
+  keyword TEXT,
+  cases INTEGER,
+  UNIQUE(keyword));
 CREATE TABLE IF NOT EXISTS users(
   id INTEGER PRIMARY KEY,
   username TEXT,
