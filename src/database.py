@@ -162,7 +162,7 @@ class Engine(object):
         '''
 
         keys_on = 'PRAGMA foreign_keys = ON'
-        stmnt = 'CREATE TABLE users(username TEXT PRIMARY KEY, \
+        stmnt = 'CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT, \
                    lastlogin TEXT, replies INTEGER, latestreply TEXT)'
         con = sqlite3.connect(self.db_path)
         with con:
@@ -418,7 +418,7 @@ class Connection(object):
 
         '''
 
-
+        users_id = row['id']
         users_username = row['username']
         users_lastlogin = row['lastlogin']
         users_replies = row['replies']
@@ -426,7 +426,7 @@ class Connection(object):
             users_latestreply = row['latestreply']
         else:
             users_latestreply = None
-        user = {'username': users_username, 'lastlogin': users_lastlogin,
+        user = {'id': users_id, 'username': users_username, 'lastlogin': users_lastlogin,
                     'replies': users_replies, 'latestreply': users_latestreply}
         return user
 
@@ -498,27 +498,27 @@ class Connection(object):
             return None
         return responseid
 
-    def modify_username(self, username, newusername):
+    def modify_username(self, userid, newusername):
         '''
         Modify users username
 
-        :param username: the username that we want to change
+        :param userid: the user that we want to change
         :param newusername: new username
         :return: the new username or None if the user was
               not found. .
         '''
 
-        updated = 'UPDATE users SET username=? WHERE username=?'
+        updated = 'UPDATE users SET username=? WHERE id=?'
 
         _username_new = newusername
-        _username_old = username
+        _id = userid
 
         # Activate foreign key support
         self.set_foreign_keys_support()
         # Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
-        pvalue = (_username_new, _username_old)
+        pvalue = (_username_new, _id)
         cur.execute(updated, pvalue)
         self.con.commit()
         if (cur.rowcount < 1):
@@ -621,18 +621,18 @@ class Connection(object):
         return responses
 
 
-    def get_username_responses(self, username):
+    def get_username_responses(self, userid):
         '''
         Extracts usename's responses from the database.
 
-        :param username: The username we are looking for
+        :param username: The user we are looking for
         :return: List of keywords with the wanted username
         '''
 
         # Activate foreign key support
         self.set_foreign_keys_support()
         # Create the SQL Query
-        query = 'SELECT response FROM responses WHERE username = ?'
+        query = 'SELECT response FROM responses WHERE id = ?'
         # Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
@@ -677,7 +677,35 @@ class Connection(object):
         # Build the return object
         return responses
 
-    def get_user(self, username):
+    def get_user(self, userid):
+        '''
+        Extracts userdata with wanted id from the database
+
+        :param userid: user we are looking for
+
+        :return: A dictionary with the format provided in
+            :py:meth:`_create_user_object` or None if the message with target
+            id does not exist.
+        '''
+
+        # Activate foreign key support
+        self.set_foreign_keys_support()
+        # Create the SQL Query
+        query = 'SELECT * FROM users WHERE id = ?'
+        # Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        # Execute main SQL Statement
+        pvalue = (userid,)
+        cur.execute(query, pvalue)
+        # Process the response.
+        row = cur.fetchone()
+        if row is None:
+            return None
+        # Build the return object
+        return self._create_user_object(row)
+
+    def get_username(self, username):
         '''
         Extracts userdata with wanted username from the database
 
@@ -772,7 +800,8 @@ class Connection(object):
         :param username: the username we are looking for
         :return: True if the username is in the database. False otherwise.
         '''
-        return self.get_user(username) is not None
+
+        return self.get_username(username) is not None
 
     def contains_response(self, keyword):
         '''

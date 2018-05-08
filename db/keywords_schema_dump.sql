@@ -4,19 +4,21 @@ CREATE TABLE IF NOT EXISTS keywords(
   keyword TEXT PRIMARY KEY,
   cases INTEGER);
 CREATE TABLE IF NOT EXISTS users(
-  username TEXT PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
+  username TEXT,
   lastlogin TEXT,
   replies INTEGER,
-  latestreply TEXT);  
+  latestreply TEXT,
+  UNIQUE(username));
 CREATE TABLE IF NOT EXISTS responses(
-  responseid INTEGER PRIMARY KEY, 
-  response TEXT, 
+  responseid INTEGER PRIMARY KEY,
+  response TEXT,
   keyword TEXT,
   header TEXT,
   username TEXT,
   FOREIGN KEY(keyword) REFERENCES keywords(keyword) ON DELETE CASCADE,
   FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE);
-  
+
 CREATE TABLE IF NOT EXISTS statistics(
   statisticid INTEGER PRIMARY KEY,
   keyword TEXT,
@@ -25,8 +27,7 @@ CREATE TABLE IF NOT EXISTS statistics(
   latestuser TEXT,
   FOREIGN KEY(keyword) REFERENCES keywords(keyword) ON DELETE CASCADE,
   FOREIGN KEY(latestuser) REFERENCES users(username) ON DELETE CASCADE);
-  
-    
+
+
 COMMIT;
-PRAGMA foreign_keys=ON;  
-   
+PRAGMA foreign_keys=ON;
