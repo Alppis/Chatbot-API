@@ -12,7 +12,7 @@ class Keywords extends Model {
     static get jsonSchema() {
         return {
             type: 'object',
-            required: ['keyword'],
+            required: ['keywordid'],
 
             properties: {
                 keywordid: {type: 'integer'},

@@ -11,9 +11,10 @@ class Users extends Model {
     static get jsonSchema() {
         return {
             type: 'object',
-            required: ['username'],
+            required: ['id'],
 
             properties: {
+                id: {type: 'integer'},
                 username: {type: 'string', maxLength: 255},
                 lastlogin: {type: 'string', maxLength: 255},
                 replies: {type: 'integer'},
