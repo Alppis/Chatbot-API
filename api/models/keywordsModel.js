@@ -1,4 +1,6 @@
 const Model = require('objection').Model;
+const Users = require('../models/usersModel');
+const Responses = require('../models/responsesModel');
 
 class Keywords extends Model {
     //required properties
@@ -13,6 +15,7 @@ class Keywords extends Model {
             required: ['keyword'],
 
             properties: {
+                keywordid: {type: 'integer'},
                 keyword: {type: 'string', minLength: 1, maxLength: 255},
                 cases: {type: 'integerer'}
             }

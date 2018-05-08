@@ -13,7 +13,7 @@ class Responses extends Model {
     static get jsonSchema() {
         return {
             type: 'object',
-            required: ['respnseid', 'keyword', 'username'],
+            required: ['responseid', 'response', 'keyword', 'username'],
 
             properties: {
                 responseid: {type: 'integer'},

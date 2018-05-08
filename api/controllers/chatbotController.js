@@ -21,12 +21,17 @@ module.exports = router => {
 
     //Get single keyword (may need changes to naming)
     router.get('/api/keywords/:keywordid', async (req, res) => {
+
         const keyword = await Keywords
          .query()
          .skipUndefined()
-         .where('keywordid', '=', req.params.keyword);
+         .where('keywordid', '=', req.params.keywordid);
 
-         res.send(keyword);
+        if (!keyword) {
+            throw createStatusCodeError(404);
+        }
+
+        res.send(keyword);
     });
 
     //Modify single keyword //TODO\\
@@ -58,17 +63,6 @@ module.exports = router => {
         .query()
         .insert({keyword: keywordToAdd, cases: casesToAdd});*/
         const graph = req.body;
-
-    // It's a good idea to wrap `insertGraph` call in a transaction since it
-    // may create multiple queries.
-    const insertedGraph = await transaction(Keywords.knex(), trx => {
-      return (
-        Keywords.query(trx)
-          // For security reasons, limit the relations that can be inserted.
-          //.allowInsert('[pets, children.[pets, movies], movies, parent]')
-          .insertGraph(graph)
-      );
-    });
 });
 
     //Get all responses
@@ -143,9 +137,15 @@ module.exports = router => {
 
     //Get single user (may need changes to naming)
     router.get('/api/users/:id', async (req, res) => {
-        const user = await Users.query()
+
+        const user = await Users
+         .query()
          .skipUndefined()
-         .where('id', '=', req.params.user)
+         .where('id', '=', req.params.id);
+
+         if (!user) {
+            throw createStatusCodeError(404);
+        }
 
          res.send(user);
     });
