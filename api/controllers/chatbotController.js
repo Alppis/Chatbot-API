@@ -32,10 +32,10 @@ module.exports = router => {
     //Modify single keyword //TODO\\
 
     //Remove single keyword (may need changes to naming)
-    router.delete('/api/keywords/:keyword', async (req, res) => {
+    router.delete('/api/keywords/:keywordid', async (req, res) => {
         await Keywords.query()
         .delete()
-        .where('keyword', '=', req.params.keyword)
+        .where('keywordid', '=', req.params.keyword)
 
         res.send({});
     });
@@ -44,11 +44,32 @@ module.exports = router => {
 
     //Add new keyword
     router.post('/api/keywords', async (req, res) => {
-        const keyword = await Keywords.query();
+        /*const keyword = await Keywords.query();
 
-        const addKeyword = await keyword.insert(req.body);
+        const addKeyword = await keyword.insert(keywords, null ,req.body);
         res.send(addKeyword);
+        let keywordToAdd = req.body.keyword;
+        let casesToAdd = req.body.cases;
+
+        console.log("keyword to add is: " + keywordToAdd);
+        console.log(casesToAdd);
+
+        const keyword = await Keywords
+        .query()
+        .insert({keyword: keywordToAdd, cases: casesToAdd});*/
+        const graph = req.body;
+
+    // It's a good idea to wrap `insertGraph` call in a transaction since it
+    // may create multiple queries.
+    const insertedGraph = await transaction(Keywords.knex(), trx => {
+      return (
+        Keywords.query(trx)
+          // For security reasons, limit the relations that can be inserted.
+          //.allowInsert('[pets, children.[pets, movies], movies, parent]')
+          .insertGraph(graph)
+      );
     });
+});
 
     //Get all responses
     router.get('/api/responses', async (req, res) => {
@@ -85,14 +106,14 @@ module.exports = router => {
     });
 
     //Delete single response
-    router.delete('/api/responses/:id', async (req, res) => {
+    router.delete('/api/responses/:responseid', async (req, res) => {
         await Keywords.query().deleteById(req.params.id);
 
         res.send({});
     });
 
     //Modify single response
-    router.patch('/api/responses/:id', async (req, res) => {
+    router.patch('/api/responses/:responseid', async (req, res) => {
         const response = await Responses.query().patchAndFetchById(req.params.id, req.body);
 
         res.send(response);
@@ -121,10 +142,10 @@ module.exports = router => {
     });
 
     //Get single user (may need changes to naming)
-    router.get('/api/users/:user', async (req, res) => {
+    router.get('/api/users/:id', async (req, res) => {
         const user = await Users.query()
          .skipUndefined()
-         .where('user', '=', req.params.user)
+         .where('id', '=', req.params.user)
 
          res.send(user);
     });
@@ -132,10 +153,10 @@ module.exports = router => {
     //Modify single user //TODO\\
 
     //Remove single user (may need changes to naming)
-    router.delete('/api/users/:user', async (req, res) => {
+    router.delete('/api/users/:id', async (req, res) => {
         await Users.query()
         .delete()
-        .where('user', req.query.keyword)
+        .where('id', req.query.keyword)
 
         res.send({});
     });
@@ -156,4 +177,4 @@ module.exports = router => {
             statusCode
         });
     }
-}
+};
