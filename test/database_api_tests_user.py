@@ -10,16 +10,19 @@ from src import database
 DB_PATH = 'db/users_test.db'
 ENGINE = database.Engine(DB_PATH)
 
+ID1 = 1
 USERNAME1 = 'LinuxPenguin'
-USER1 = {'username': USERNAME1,
+USER1 = {'id': ID1, 'username': USERNAME1,
         'lastlogin': '2018-02-12 19:11:12',
         'replies': 12, 'latestreply': 'Tux Tux'}
 
+ID2 = 2
 USERNAME2 = 'PHP Programmer'
-USER2 = {'username': USERNAME2,
+USER2 = {'id': ID2, 'username': USERNAME2,
         'lastlogin': '2017-09-11 20:09:14',
         'replies': 3, 'latestreply': 'Spock or Picard?'}
 
+WRONG_ID = 1375
 WRONG_USERNAME = 'Troll'
 
 class UserTestCase(unittest.TestCase):
@@ -96,41 +99,41 @@ class UserTestCase(unittest.TestCase):
         print('('+self.test_get_user.__name__+')', \
               self.test_get_user.__doc__)
         #Test with an existing username
-        user = self.connection.get_user(USERNAME1)
+        user = self.connection.get_user(ID1)
         self.assertDictContainsSubset(user, USER1)
-        user = self.connection.get_user(USERNAME2)
+        user = self.connection.get_user(ID2)
         self.assertDictContainsSubset(user, USER2)
 
 
     def test_get_user_noexistinguser(self):
         '''
-        Test get_user with Troll (no-existing)
+        Test get_user with 1375 (no-existing)
         '''
         print('('+self.test_get_user_noexistinguser.__name__+')',\
               self.test_get_user_noexistinguser.__doc__)
         #Test with an no-existing username
-        user = self.connection.get_user(WRONG_USERNAME)
+        user = self.connection.get_user(WRONG_ID)
         self.assertIsNone(user)
 
-    def test_contains_user(self):
+    def test_contains_username(self):
         '''
-        Test contains_user
+        Test contains_username
         '''
-        print('('+self.test_contains_user.__name__+')',\
-              self.test_contains_user.__doc__)
+        print('('+self.test_contains_username.__name__+')',\
+              self.test_contains_username.__doc__)
         #Test with an existing user
-        user = self.connection.get_user(USERNAME1)
+        user = self.connection.get_username(USERNAME1)
         self.assertIsNotNone(USERNAME1)
 
-    def test_contains_user_notexisting(self):
+    def test_contains_username_notexisting(self):
         '''
-        Test contains_user with no-existing
+        Test contains_username with no-existing
         '''
-        print('('+self.test_contains_user_notexisting.__name__+')',\
-              self.test_contains_user_notexisting.__doc__)
+        print('('+self.test_contains_username_notexisting.__name__+')',\
+              self.test_contains_username_notexisting.__doc__)
         #Test with an existing username
         #self.assertFalse(self.connection.contains_user(USER_WRONG_NICKNAME))
-        user = self.connection.get_user(WRONG_USERNAME)
+        user = self.connection.get_username(WRONG_USERNAME)
         self.assertFalse(user)
 
 if __name__ == '__main__':
