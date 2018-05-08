@@ -1,0 +1,23 @@
+------------------
+//\\TODO LIST//\\
+------------------
+
+- adding, removing and modifying resources
+- id to all resources
+- add more tests (make them pass)
+- client (bootstrap / react?)
+
+-------------------------------
+//\\IMPLEMENTED AND WORKING//\\
+-------------------------------
+
+- get all resources (responses, users, etc)
+- get single response
+
+-----------------------------------
+//\\IMPLEMENTED AND NOT WORKING//\\
+-----------------------------------
+
+- add new resources (responses, etc)
+- delete resources (responses, etc)
+- modify resouces (responses, etc)

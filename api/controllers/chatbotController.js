@@ -21,9 +21,10 @@ module.exports = router => {
 
     //Get single keyword (may need changes to naming)
     router.get('/api/keywords/:keywordid', async (req, res) => {
-        const keyword = await Keywords.query()
+        const keyword = await Keywords
+         .query()
          .skipUndefined()
-         .where('keywordid', '=', req.params.keyword)
+         .where('keywordid', '=', req.params.keyword);
 
          res.send(keyword);
     });
