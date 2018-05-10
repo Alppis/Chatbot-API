@@ -10,13 +10,47 @@ const Statistics = require('../models/statisticsModel');
 module.exports = router => {
     //Get all keywords
     router.get('/api/keywords', async (req, res) => {
-        const keyword = await Keywords.query();
+        const keywords = await Keywords.query();
 
-        if (!keyword) {
+        if (!keywords) {
             throw createStatusCodeError(404);
         }
 
-        res.send(keyword);
+        keywords.forEach(keyword => {
+            controls = {
+                self: {
+                    href: `/chatbot/api/keywords/${keyword.keywordid}`
+                }
+            }
+
+            keyword['@controls'] = controls;
+        })
+
+        const payload = {
+            '@namespaces': {
+                'name': '/chatbot/namespace/',
+                'items': keywords
+            },
+
+            '@controls': {
+                self: {
+                    href: `/chatbot/api/keywords/`
+                },
+                "chatbot:add-keyword": {
+                    'title': 'Create keyword',
+                    href: `/chatbot/api/keywords/`,
+                    'encoding': 'json',
+                    'method': 'POST',
+                    'schemaurl': '/chatbot/schema/keyword'
+                },
+                "chatbot:keywords-all":  {
+                    href: `chatbot/api/keywords/`,
+                    'title': 'All keywords'
+                }
+            }
+        }
+
+        res.send(payload);
     });
 
     //Get single keyword (may need changes to naming)
@@ -67,13 +101,48 @@ module.exports = router => {
 
     //Get all responses
     router.get('/api/responses', async (req, res) => {
-        const response = await Responses.query();
+        const responses = await Responses.query();
 
-        if (!response) {
+        if (!responses) {
             throw createStatusCodeError(404);
         }
 
-        res.send(response);
+
+        responses.forEach(response => {
+            controls = {
+                self: {
+                    href: `/chatbot/api/responses/${response.responseid}`
+                }
+            }
+
+            response['@controls'] = controls;
+        })
+
+        const payload = {
+            '@namespaces': {
+                'name' : "/chatbot/namespace/",
+                'items': responses
+            },
+
+            '@controls': {
+                self: {
+                    href: `/chatbot/api/responses/`
+                },
+                "chatbot:add-response": {
+                    'title': 'Create response',
+                    href: `/chatbot/api/responses/`,
+                    'encoding': 'json',
+                    'method': 'POST',
+                    'schemaurl': '/chatbot/schema/response'
+                },
+                "chatbot:responses-all":  {
+                    href: `chatbot/api/responses/`,
+                    'title': 'All responses'
+                }
+            }
+        }
+
+        res.send(payload);
     });
 
     //Get single response (may need changes to naming)
@@ -115,29 +184,85 @@ module.exports = router => {
 
     //Get statistics
     router.get('/api/statistics', async (req, res) => {
-        const statistic = await Statistics.query();
+        const statistics = await Statistics.query();
 
-        if (!static) {
+        if (!statistics) {
             throw createStatusCodeError(404);
         }
 
-        res.send(statistic);
+        statistics.forEach(statistic => {
+            controls = {
+                self: {
+                    href: `/chatbot/api/statistics/${statistic.id}`
+                }
+            }
+
+            statistic['@controls'] = controls;
+        })
+
+        const payload = {
+            '@namespaces': {
+                'name': '/chatbot/namespace/',
+                'items': statistics
+            },
+
+            '@controls': {
+                self: {
+                    href: `/chatbot/api/statistics/`
+                }
+            }
+        }
+
+        res.send(payload);
     });
 
     //Get all users
     router.get('/api/users', async (req, res) => {
-        const user = await Users.query();
+        const users = await Users.query();
 
-        if (!user) {
+        if (!users) {
             throw createStatusCodeError(404);
         }
 
-        res.send(user);
+        users.forEach(user => {
+            controls = {
+                self: {
+                    href: `/chatbot/api/users/${user.id}`
+                }
+            }
+
+            user['@controls'] = controls;
+        })
+
+        const payload = {
+            '@namespaces': {
+                'name': '/chatbot/namespace/',
+                'items': users
+            },
+
+            '@controls': {
+                self: {
+                    href: `/chatbot/api/users/`
+                },
+                "chatbot:add-user": {
+                    'title': 'Create user',
+                    href: `/chatbot/api/users/`,
+                    'encoding': 'json',
+                    'method': 'POST',
+                    'schemaurl': '/chatbot/schema/user'
+                },
+                "chatbot:users-all":  {
+                    href: `chatbot/api/users/`,
+                    'title': 'All users'
+                }
+            }
+        }
+
+        res.send(payload);
     });
 
     //Get single user (may need changes to naming)
     router.get('/api/users/:id', async (req, res) => {
-
         const user = await Users
          .query()
          .skipUndefined()
@@ -154,11 +279,17 @@ module.exports = router => {
 
     //Remove single user (may need changes to naming)
     router.delete('/api/users/:id', async (req, res) => {
-        await Users.query()
+        /*await Users.query()
         .delete()
-        .where('id', req.query.keyword)
+        .where('id', req.params.id)*/
 
-        res.send({});
+        try {
+            const deletedUser = await Users.query().deleteById(req.params.id);
+            res.send({status: 200, info: `Deleted ${deletedUser} row(s)`});
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Modify users //TODO\\
