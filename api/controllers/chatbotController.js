@@ -61,11 +61,33 @@ module.exports = router => {
          .skipUndefined()
          .where('keywordid', '=', req.params.keywordid);
 
+        const keywordid = req.params.keywordid;
+
         if (!keyword) {
             throw createStatusCodeError(404);
         }
 
-        res.send(keyword);
+        const payload = {
+            '@namespaces': {
+                'chatbot': {
+                    'name': '/chatbot/namespace/'
+                },
+                'atom-thread': {
+                    'name': 'https://tools.ietf.org/html/rfc4685'
+                }
+            },
+
+            'keyword': keyword,
+            'cases': keyword.cases,
+
+            '@controls': {
+                self: {
+                    href: `/chatbot/api/keywords/${keywordid}`
+                }
+            }
+        }
+
+        res.send(payload);
     });
 
     //Modify single keyword //TODO\\
@@ -145,7 +167,7 @@ module.exports = router => {
         res.send(payload);
     });
 
-    //Get single response (may need changes to naming)
+    //Get single response
     router.get('/api/responses/:responseid', async (req, res) => {
 
         const response = await Responses
@@ -157,7 +179,45 @@ module.exports = router => {
             throw createStatusCodeError(404);
         }
 
-        res.send(response);
+        const responseid = req.params.responseid;
+        const keywordToSearch = response.keyword;
+        console.log('keyword to search ' + keywordToSearch);
+
+        const keyword = await Keywords
+        .query()
+        .skipUndefined()
+        .where('keyword', '=', keywordToSearch);
+
+        console.log('keyword is ' + JSON.stringify(keyword));
+
+        const keywordid = keyword.keywordid;
+
+        const payload = {
+            '@namespaces': {
+                'chatbot': {
+                    'name': '/chatbot/namespace/'
+                },
+                'atom-thread': {
+                    'name': 'https://tools.ietf.org/html/rfc4685'
+                }
+            },
+
+            'response': response,
+            'keyword': response.keyword,
+            'header': response.header,
+            'username': response.username,
+
+            '@controls': {
+                self: {
+                    href: `/chatbot/api/responses/${responseid}`
+                },
+                'keyword': {
+                    href: `/chatbot/api/responses/${keyword.keywordid}`//needs to be fixed
+                }
+            }
+        }
+
+        res.send(payload);
     });
 
     //Add new response
@@ -272,7 +332,32 @@ module.exports = router => {
             throw createStatusCodeError(404);
         }
 
-         res.send(user);
+        const userid = req.params.id;
+
+        const payload = {
+            '@namespaces': {
+                'chatbot': {
+                    'name': '/chatbot/namespace'
+                },
+                'atom-thread': {
+                    'name': 'https://tools.ietf.org/html/rfc4685'
+                }
+            },
+
+            'user': user,
+            'username': user.username,
+            'lastlogin': user.lastlogin,
+            'replies': user.replies,
+            'latesreply': user.latesreply,
+
+            '@controls': {
+                self: {
+                    href: `/chatbot/api/users/${userid}`
+                }
+            }
+        }
+
+         res.send(payload);
     });
 
     //Modify single user //TODO\\
