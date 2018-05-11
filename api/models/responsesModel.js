@@ -1,8 +1,4 @@
-
 const Model = require('objection').Model;
-const Keywords = require('../models/keywordsModel');
-const Users = require('../models/usersModel');
-const Statistics = require('../models/statisticsModel');
 
 class Responses extends Model {
     //Required properties
@@ -11,7 +7,7 @@ class Responses extends Model {
     }
 
     //JSON schema. Used for model instance validation.
-    static get jsonSchema() {
+    /*static get jsonSchema() {
         return {
             type: 'object',
             required: ['responseid', 'response', 'keyword', 'username'],
@@ -24,23 +20,25 @@ class Responses extends Model {
                 username: {type: 'string', maxLength: 255}
             }
         };
-    }
+    }*/
 
     //Relations to other models
     static get relationMappings() {
+        const Keywords = require('../models/keywordsModel');
+        const Users = require('../models/usersModel');
         return {
-            keyword: {
+            keywordRelationResp2: {
                 relation: Model.BelongsToOneRelation,
-                modelClass: __dirname + '/Keywords',
+                modelClass: Keywords,
                 join: {
                     from: 'responses.keyword',
                     to: 'keywords.keyword'
                 }
             },
 
-            username: {
+            usernameRelationUsr: {
                 relation: Model.BelongsToOneRelation,
-                modelClass: __dirname + '/Users',
+                modelClass: Users,
                 join: {
                     from: 'responses.username',
                     to: 'users.username'

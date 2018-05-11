@@ -1,6 +1,4 @@
 const Model = require('objection').Model;
-const Keywords = require('../models/keywordsModel');
-const Users = require('../models/usersModel');
 
 class Statistics extends Model {
     //Required properties
@@ -9,7 +7,7 @@ class Statistics extends Model {
     }
 
     //JSON schema. Used for model instance validation.
-    static get jsonSchema() {
+    /*static get jsonSchema() {
         return {
             type: 'object',
             required: ['statisticid', 'keyword', 'latestuser'],
@@ -22,23 +20,25 @@ class Statistics extends Model {
                 latestuser: {type: 'string', maxLength: 255}
             }
         };
-    }
+    }*/
 
     //Relations to other models
     static get relationMappings() {
+        const Keywords = require('../models/keywordsModel');
+        const Users = require('../models/usersModel');
         return {
-            keyword: {
+            keywordRelationStat2: {
                 relation: Model.ManyToManyRelation,
-                modelClass: __dirname + '/Keywords',
+                modelClass: Keywords,
                 join: {
                     from: 'statistics.keyword',
                     to: 'keywords.keyword'
                 }
             },
 
-            username: {
+            usernameRelationUser: {
                 relation: Model.ManyToManyRelation,
-                modelClass: __dirname + '/Users',
+                modelClass: Users,
                 join: {
                     from: 'statistics.latestuser',
                     to: 'users.username'

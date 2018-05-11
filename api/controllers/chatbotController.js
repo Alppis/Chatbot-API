@@ -117,7 +117,7 @@ module.exports = router => {
         res.send({});
     });
 
-    //Remove single keyword (may need changes to naming)
+    //Remove single keyword
     router.delete('/api/keywords/:keywordid', async (req, res) => {
         
         try {
@@ -134,21 +134,16 @@ module.exports = router => {
     //Modify keywords and assiciated responses //TODO\\
 
     //Add new keyword
-    router.post('/api/keywords', async (req, res) => {
-        /*const keyword = await Keywords.query();
-
-        const addKeyword = await keyword.insert(keywords, null ,req.body);
-        res.send(addKeyword);
-        let keywordToAdd = req.body.keyword;
-        let casesToAdd = req.body.cases;
-
-        console.log("keyword to add is: " + keywordToAdd);
-        console.log(casesToAdd);
-
-        const keyword = await Keywords
-        .query()
-        .insert({keyword: keywordToAdd, cases: casesToAdd});*/
-        const graph = req.body;
+    router.post('/api/keywords/', async (req, res) => {
+        
+        try {
+            const keywordAdd = await Keywords
+            .query()
+            .insert({keyword: req.body.keyword, cases: req.body.cases});
+        } catch (e){
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
 });
 
     //Get all responses
@@ -252,11 +247,15 @@ module.exports = router => {
     });
 
     //Add new response
-    router.post('/api/responses', async (req, res) => {
-        const response = await Responses.query();
-
-        const addResponse = await response.insert(req.body);
-        res.send(addResponse);
+    router.post('/api/responses/', async (req, res) => {
+        try {
+            const responseAdd = await Responses
+            .query()
+            .insert({response: req.body.response, keyword: req.body.keyword, header: req.body.header, username: req.body.username});
+        } catch (e){
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Delete single response
@@ -274,7 +273,7 @@ module.exports = router => {
 
     //Modify single response
     router.patch('/api/responses/:responseid', async (req, res) => {
-        /*const responseid = req.params.responseid;
+        const responseid = req.params.responseid;
         try {
             const response = await Responses
             .query()
@@ -294,7 +293,7 @@ module.exports = router => {
             }
         }
 
-        res.send({});*/
+        res.send({});
     });
 
     //Get statistics
@@ -380,7 +379,7 @@ module.exports = router => {
         }
     });
 
-    //Get single user (may need changes to naming)
+    //Get single user
     router.get('/api/users/:id', async (req, res) => {
 
         try {
@@ -432,7 +431,7 @@ module.exports = router => {
         } catch (e) {
             console.log(e);
             throw createStatusCodeError(404);
-            /*const payload = {
+            const payload = {
                 '@error': {
                     '@message': 'Keyword does not exists',
                     '@messages': [
@@ -440,14 +439,15 @@ module.exports = router => {
                     ]
                 },
                 'resourse_url': '/chatbot/api/keywords/${keywordid}'
-            }*/
+            }
+            res.send({payload});
         }
 
-        res.send({});
+        //res.send({payload});
     });
     
 
-    //Remove single user (may need changes to naming)
+    //Remove single user
     router.delete('/api/users/:id', async (req, res) => {
 
         try {
@@ -462,11 +462,15 @@ module.exports = router => {
     //Modify users //TODO\\
 
     //Add new user
-    router.post('/api/users', async (req, res) => {
-        const user = await Users.query();
-
-        const addUser = await user.insert(req.body);
-        res.send(addUser);
+    router.post('/api/users/', async (req, res) => {
+        try {
+            const userAdd = await Users
+            .query()
+            .insert({username: req.body.username});
+        } catch (e){
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Error handling. Handled in server.js
