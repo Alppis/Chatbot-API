@@ -2,6 +2,7 @@
 const Model = require('objection').Model;
 const Keywords = require('../models/keywordsModel');
 const Users = require('../models/usersModel');
+const Statistics = require('../models/statisticsModel');
 
 class Responses extends Model {
     //Required properties
@@ -29,7 +30,7 @@ class Responses extends Model {
     static get relationMappings() {
         return {
             keyword: {
-                relation: Model.ManyToManyRelation,
+                relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/Keywords',
                 join: {
                     from: 'responses.keyword',
@@ -38,7 +39,7 @@ class Responses extends Model {
             },
 
             username: {
-                relation: Model.ManyToManyRelation,
+                relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/Users',
                 join: {
                     from: 'responses.username',

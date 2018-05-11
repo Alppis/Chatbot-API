@@ -1,5 +1,8 @@
 
 const Model = require('objection').Model;
+const Keywords = require('../models/keywordsModel');
+const Responses = require('../models/responsesModel');
+const Statistics = require('../models/statisticsModel');
 
 class Users extends Model {
     //Required properties
@@ -19,6 +22,29 @@ class Users extends Model {
                 lastlogin: {type: 'string', maxLength: 255},
                 replies: {type: 'integer'},
                 latestreply: {type: 'string', maxLength: 255}
+            }
+        };
+    }
+
+    //Relations to other models
+    static get relationMappings() {
+        return {
+            username: {
+                relation: Model.HasOneRelation,
+                modelClass: __dirname + '/Responses',
+                join: {
+                    from: 'users.username',
+                    to: 'responses.username'
+                }
+            },
+
+            username: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: __dirname + '/Statistics',
+                join: {
+                    from: 'users.username',
+                    to: 'statistics.latestsuser'
+                }
             }
         };
     }

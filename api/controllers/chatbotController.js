@@ -91,6 +91,29 @@ module.exports = router => {
     });
 
     //Modify single keyword //TODO\\
+    router.patch('/api/keywords/:keywordid', async (req, res) => {
+        const keywordid = req.params.keywordid;
+        try {
+            const keyword = await Keywords
+            .query()
+            .patch({keyword: req.body.keyword, cases: req.body.cases})
+            .where('keywordid', req.params.keywordid);
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+            /*const payload = {
+                '@error': {
+                    '@message': 'Keyword does not exists',
+                    '@messages': [
+                        'There is no a keyword with id ${keywordid}'
+                    ]
+                },
+                'resourse_url': '/chatbot/api/keywords/${keywordid}'
+            }*/
+        }
+
+        res.send({});
+    });
 
     //Remove single keyword (may need changes to naming)
     router.delete('/api/keywords/:keywordid', async (req, res) => {
@@ -248,9 +271,27 @@ module.exports = router => {
 
     //Modify single response
     router.patch('/api/responses/:responseid', async (req, res) => {
-        const response = await Responses.query().patchAndFetchById(req.params.id, req.body);
+        /*const responseid = req.params.responseid;
+        try {
+            const response = await Responses
+            .query()
+            .patch({response: req.body.response, keyword: req.body.keyword, header: req.body.header, username: req.body.username})
+            .where('responseid', req.params.responseid);
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+            const payload = {
+                '@error': {
+                    '@message': 'Response does not exists',
+                    '@messages': [
+                        'There is no a response with id ${responseid}'
+                    ]
+                },
+                'resourse_url': '/chatbot/api/responses/${responseid}'
+            }
+        }
 
-        res.send(response);
+        res.send({});*/
     });
 
     //Get statistics
@@ -371,7 +412,31 @@ module.exports = router => {
          res.send(payload);
     });
 
-    //Modify single user //TODO\\
+    //Modify single user
+    router.patch('/api/users/:id', async (req, res) => {
+        const userid = req.params.id;
+        try {
+            const user = await Keywords
+            .query()
+            .patch({username: req.body.username})
+            .where('id', req.params.id);
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+            /*const payload = {
+                '@error': {
+                    '@message': 'Keyword does not exists',
+                    '@messages': [
+                        'There is no a keyword with id ${keywordid}'
+                    ]
+                },
+                'resourse_url': '/chatbot/api/keywords/${keywordid}'
+            }*/
+        }
+
+        res.send({});
+    });
+    
 
     //Remove single user (may need changes to naming)
     router.delete('/api/users/:id', async (req, res) => {
