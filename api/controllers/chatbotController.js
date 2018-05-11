@@ -94,11 +94,16 @@ module.exports = router => {
 
     //Remove single keyword (may need changes to naming)
     router.delete('/api/keywords/:keywordid', async (req, res) => {
-        await Keywords.query()
-        .delete()
-        .where('keywordid', '=', req.params.keyword)
-
-        res.send({});
+        
+        try {
+            const deletedKeyword = await Keywords.query()
+            .delete()
+            .where('keywordid', '=', req.params.keywordid);
+            res.send({status: 200, info: `Deleted ${deletedKeyword} row(s)`});
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Modify keywords and assiciated responses //TODO\\
@@ -230,9 +235,15 @@ module.exports = router => {
 
     //Delete single response
     router.delete('/api/responses/:responseid', async (req, res) => {
-        await Keywords.query().deleteById(req.params.id);
-
-        res.send({});
+        try {
+            const deletedResponse = await Responses.query()
+            .delete()
+            .where('responseid', '=', req.params.responseid);
+            res.send({status: 200, info: `Deleted ${deletedResponse} row(s)`});
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Modify single response
@@ -364,9 +375,6 @@ module.exports = router => {
 
     //Remove single user (may need changes to naming)
     router.delete('/api/users/:id', async (req, res) => {
-        /*await Users.query()
-        .delete()
-        .where('id', req.params.id)*/
 
         try {
             const deletedUser = await Users.query().deleteById(req.params.id);
