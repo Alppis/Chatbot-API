@@ -10,84 +10,86 @@ const Statistics = require('../models/statisticsModel');
 module.exports = router => {
     //Get all keywords
     router.get('/api/keywords', async (req, res) => {
-        const keywords = await Keywords.query();
+        try {
+            const keywords = await Keywords.query();
 
-        if (!keywords) {
+            keywords.forEach(keyword => {
+                controls = {
+                    self: {
+                        href: `/chatbot/api/keywords/${keyword.keywordid}`
+                    }
+                }
+
+                keyword['@controls'] = controls;
+            })
+
+            const payload = {
+                '@namespaces': {
+                    'name': '/chatbot/namespace/',
+                    'items': keywords
+                },
+
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/keywords/`
+                    },
+                    "chatbot:add-keyword": {
+                        'title': 'Create keyword',
+                        href: `/chatbot/api/keywords/`,
+                        'encoding': 'json',
+                        'method': 'POST',
+                        'schemaurl': '/chatbot/schema/keyword'
+                    },
+                    "chatbot:keywords-all":  {
+                        href: `chatbot/api/keywords/`,
+                        'title': 'All keywords'
+                    }
+                }
+            }
+
+            res.send(payload);
+        } catch (e) {
+            console.log(e);
             throw createStatusCodeError(404);
         }
-
-        keywords.forEach(keyword => {
-            controls = {
-                self: {
-                    href: `/chatbot/api/keywords/${keyword.keywordid}`
-                }
-            }
-
-            keyword['@controls'] = controls;
-        })
-
-        const payload = {
-            '@namespaces': {
-                'name': '/chatbot/namespace/',
-                'items': keywords
-            },
-
-            '@controls': {
-                self: {
-                    href: `/chatbot/api/keywords/`
-                },
-                "chatbot:add-keyword": {
-                    'title': 'Create keyword',
-                    href: `/chatbot/api/keywords/`,
-                    'encoding': 'json',
-                    'method': 'POST',
-                    'schemaurl': '/chatbot/schema/keyword'
-                },
-                "chatbot:keywords-all":  {
-                    href: `chatbot/api/keywords/`,
-                    'title': 'All keywords'
-                }
-            }
-        }
-
-        res.send(payload);
     });
 
-    //Get single keyword (may need changes to naming)
+    //Get single keyword
     router.get('/api/keywords/:keywordid', async (req, res) => {
+        
+        try {
+            const keyword = await Keywords
+            .query()
+            .skipUndefined()
+            .where('keywordid', '=', req.params.keywordid);
 
-        const keyword = await Keywords
-         .query()
-         .skipUndefined()
-         .where('keywordid', '=', req.params.keywordid);
+            const keywordid = req.params.keywordid;
 
-        const keywordid = req.params.keywordid;
-
-        if (!keyword) {
-            throw createStatusCodeError(404);
-        }
-
-        const payload = {
-            '@namespaces': {
-                'chatbot': {
-                    'name': '/chatbot/namespace/'
+            const payload = {
+                '@namespaces': {
+                    'chatbot': {
+                        'name': '/chatbot/namespace/'
+                    },
+                    'atom-thread': {
+                        'name': 'https://tools.ietf.org/html/rfc4685'
+                    }
                 },
-                'atom-thread': {
-                    'name': 'https://tools.ietf.org/html/rfc4685'
-                }
-            },
 
-            'keyword': keyword,
-            'cases': keyword.cases,
+                'keyword': keyword,
+                'cases': keyword.cases,
 
-            '@controls': {
-                self: {
-                    href: `/chatbot/api/keywords/${keywordid}`
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/keywords/${keywordid}`
+                    }
                 }
             }
-        }
 
-        res.send(payload);
+            res.send(payload);
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Modify single keyword //TODO\\
@@ -153,99 +155,100 @@ module.exports = router => {
     router.get('/api/responses', async (req, res) => {
         const responses = await Responses.query();
 
-        if (!responses) {
+        try {
+            responses.forEach(response => {
+                controls = {
+                    self: {
+                        href: `/chatbot/api/responses/${response.responseid}`
+                    }
+                }
+
+                response['@controls'] = controls;
+            })
+
+            const payload = {
+                '@namespaces': {
+                    'name' : "/chatbot/namespace/",
+                    'items': responses
+                },
+
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/responses/`
+                    },
+                    "chatbot:add-response": {
+                        'title': 'Create response',
+                        href: `/chatbot/api/responses/`,
+                        'encoding': 'json',
+                        'method': 'POST',
+                        'schemaurl': '/chatbot/schema/response'
+                    },
+                    "chatbot:responses-all":  {
+                        href: `chatbot/api/responses/`,
+                        'title': 'All responses'
+                    }
+                }
+            }
+
+            res.send(payload);
+        } catch (e) {
+            console.log (e);
             throw createStatusCodeError(404);
         }
-
-
-        responses.forEach(response => {
-            controls = {
-                self: {
-                    href: `/chatbot/api/responses/${response.responseid}`
-                }
-            }
-
-            response['@controls'] = controls;
-        })
-
-        const payload = {
-            '@namespaces': {
-                'name' : "/chatbot/namespace/",
-                'items': responses
-            },
-
-            '@controls': {
-                self: {
-                    href: `/chatbot/api/responses/`
-                },
-                "chatbot:add-response": {
-                    'title': 'Create response',
-                    href: `/chatbot/api/responses/`,
-                    'encoding': 'json',
-                    'method': 'POST',
-                    'schemaurl': '/chatbot/schema/response'
-                },
-                "chatbot:responses-all":  {
-                    href: `chatbot/api/responses/`,
-                    'title': 'All responses'
-                }
-            }
-        }
-
-        res.send(payload);
     });
 
     //Get single response
     router.get('/api/responses/:responseid', async (req, res) => {
 
-        const response = await Responses
-         .query()
-         .skipUndefined()
-         .where('responseid', '=', req.params.responseid);
+        try {
+            const response = await Responses
+            .query()
+            .skipUndefined()
+            .where('responseid', '=', req.params.responseid);
 
-        if (!response) {
-            throw createStatusCodeError(404);
-        }
+            const responseid = req.params.responseid;
+            const keywordToSearch = response.keyword;
+            console.log('keyword to search ' + keywordToSearch);
 
-        const responseid = req.params.responseid;
-        const keywordToSearch = response.keyword;
-        console.log('keyword to search ' + keywordToSearch);
+            const keyword = await Keywords
+            .query()
+            .skipUndefined()
+            .where('keyword', '=', keywordToSearch);
 
-        const keyword = await Keywords
-        .query()
-        .skipUndefined()
-        .where('keyword', '=', keywordToSearch);
+            console.log('keyword is ' + JSON.stringify(keyword));
 
-        console.log('keyword is ' + JSON.stringify(keyword));
+            const keywordid = keyword.keywordid;
 
-        const keywordid = keyword.keywordid;
-
-        const payload = {
-            '@namespaces': {
-                'chatbot': {
-                    'name': '/chatbot/namespace/'
+            const payload = {
+                '@namespaces': {
+                    'chatbot': {
+                        'name': '/chatbot/namespace/'
+                    },
+                    'atom-thread': {
+                        'name': 'https://tools.ietf.org/html/rfc4685'
+                    }
                 },
-                'atom-thread': {
-                    'name': 'https://tools.ietf.org/html/rfc4685'
-                }
-            },
 
-            'response': response,
-            'keyword': response.keyword,
-            'header': response.header,
-            'username': response.username,
+                'response': response,
+                'keyword': response.keyword,
+                'header': response.header,
+                'username': response.username,
 
-            '@controls': {
-                self: {
-                    href: `/chatbot/api/responses/${responseid}`
-                },
-                'keyword': {
-                    href: `/chatbot/api/responses/${keyword.keywordid}`//needs to be fixed
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/responses/${responseid}`
+                    },
+                    'keyword': {
+                        href: `/chatbot/api/responses/${keyword.keywordid}`//needs to be fixed
+                    }
                 }
             }
-        }
 
-        res.send(payload);
+            res.send(payload);
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Add new response
@@ -296,120 +299,126 @@ module.exports = router => {
 
     //Get statistics
     router.get('/api/statistics', async (req, res) => {
-        const statistics = await Statistics.query();
 
-        if (!statistics) {
+        try {
+            const statistics = await Statistics.query();
+
+            statistics.forEach(statistic => {
+                controls = {
+                    self: {
+                        href: `/chatbot/api/statistics/${statistic.id}`
+                    }
+                }
+
+                statistic['@controls'] = controls;
+            })
+
+            const payload = {
+                '@namespaces': {
+                    'name': '/chatbot/namespace/',
+                    'items': statistics
+                },
+
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/statistics/`
+                    }
+                }
+            }
+
+            res.send(payload);
+        } catch (e) {
+            console.log(e);
             throw createStatusCodeError(404);
         }
-
-        statistics.forEach(statistic => {
-            controls = {
-                self: {
-                    href: `/chatbot/api/statistics/${statistic.id}`
-                }
-            }
-
-            statistic['@controls'] = controls;
-        })
-
-        const payload = {
-            '@namespaces': {
-                'name': '/chatbot/namespace/',
-                'items': statistics
-            },
-
-            '@controls': {
-                self: {
-                    href: `/chatbot/api/statistics/`
-                }
-            }
-        }
-
-        res.send(payload);
     });
 
     //Get all users
     router.get('/api/users', async (req, res) => {
-        const users = await Users.query();
 
-        if (!users) {
+        try {
+            const users = await Users.query();
+
+            users.forEach(user => {
+                controls = {
+                    self: {
+                        href: `/chatbot/api/users/${user.id}`
+                    }
+                }
+
+                user['@controls'] = controls;
+            })
+
+            const payload = {
+                '@namespaces': {
+                    'name': '/chatbot/namespace/',
+                    'items': users
+                },
+
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/users/`
+                    },
+                    "chatbot:add-user": {
+                        'title': 'Create user',
+                        href: `/chatbot/api/users/`,
+                        'encoding': 'json',
+                        'method': 'POST',
+                        'schemaurl': '/chatbot/schema/user'
+                    },
+                    "chatbot:users-all":  {
+                        href: `chatbot/api/users/`,
+                        'title': 'All users'
+                    }
+                }
+            }
+
+            res.send(payload);
+        } catch (e) {
+            console.log(e);
             throw createStatusCodeError(404);
         }
-
-        users.forEach(user => {
-            controls = {
-                self: {
-                    href: `/chatbot/api/users/${user.id}`
-                }
-            }
-
-            user['@controls'] = controls;
-        })
-
-        const payload = {
-            '@namespaces': {
-                'name': '/chatbot/namespace/',
-                'items': users
-            },
-
-            '@controls': {
-                self: {
-                    href: `/chatbot/api/users/`
-                },
-                "chatbot:add-user": {
-                    'title': 'Create user',
-                    href: `/chatbot/api/users/`,
-                    'encoding': 'json',
-                    'method': 'POST',
-                    'schemaurl': '/chatbot/schema/user'
-                },
-                "chatbot:users-all":  {
-                    href: `chatbot/api/users/`,
-                    'title': 'All users'
-                }
-            }
-        }
-
-        res.send(payload);
     });
 
     //Get single user (may need changes to naming)
     router.get('/api/users/:id', async (req, res) => {
-        const user = await Users
-         .query()
-         .skipUndefined()
-         .where('id', '=', req.params.id);
 
-         if (!user) {
-            throw createStatusCodeError(404);
-        }
+        try {
+            const user = await Users
+            .query()
+            .skipUndefined()
+            .where('id', '=', req.params.id);
 
-        const userid = req.params.id;
+            const userid = req.params.id;
 
-        const payload = {
-            '@namespaces': {
-                'chatbot': {
-                    'name': '/chatbot/namespace'
+            const payload = {
+                '@namespaces': {
+                    'chatbot': {
+                        'name': '/chatbot/namespace'
+                    },
+                    'atom-thread': {
+                        'name': 'https://tools.ietf.org/html/rfc4685'
+                    }
                 },
-                'atom-thread': {
-                    'name': 'https://tools.ietf.org/html/rfc4685'
-                }
-            },
 
-            'user': user,
-            'username': user.username,
-            'lastlogin': user.lastlogin,
-            'replies': user.replies,
-            'latesreply': user.latesreply,
+                'user': user,
+                'username': user.username,
+                'lastlogin': user.lastlogin,
+                'replies': user.replies,
+                'latesreply': user.latesreply,
 
-            '@controls': {
-                self: {
-                    href: `/chatbot/api/users/${userid}`
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/users/${userid}`
+                    }
                 }
             }
-        }
 
-         res.send(payload);
+            res.send(payload);
+        } catch (e) {
+            console.log(e);
+            throw createStatusCodeError(404);
+        }
     });
 
     //Modify single user
