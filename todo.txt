@@ -2,22 +2,29 @@
 //\\TODO LIST//\\
 ------------------
 
-- adding, removing and modifying resources
-- id to all resources
 - add more tests (make them pass)
 - client (bootstrap / react?)
+- catch json parse error / throw 400
+- add header to succesful response
 
 -------------------------------
 //\\IMPLEMENTED AND WORKING//\\
 -------------------------------
 
-- get all resources (responses, users, etc)
-- get single response
+- get all requests (responses, users, etc)
+- get single requests
+- delete single requests
+- add new (post) requests
+- patch single requests
 
 -----------------------------------
 //\\IMPLEMENTED AND NOT WORKING//\\
 -----------------------------------
 
-- add new resources (responses, etc)
-- delete resources (responses, etc)
-- modify resouces (responses, etc)
+-
+
+------------------
+//\\MISC INFO//\\
+------------------
+
+- when starting first time after change to files, api may crash, restarting fixes problem
