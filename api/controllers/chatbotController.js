@@ -48,9 +48,18 @@ module.exports = router => {
             }
 
             res.send(payload);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+        } catch (err) {
+            console.log(err);
+            const payload = {
+                '@error': {
+                    '@message': 'Something went wrong',
+                    '@messages': [
+                        'Something went wrong while processing request'
+                    ]
+                },
+                'resourse_url': '/chatbot/api/keywords/'
+            }
+            res.status(500).send({message: payload});
         }
     });
 
@@ -61,7 +70,8 @@ module.exports = router => {
             const keyword = await Keywords
             .query()
             .skipUndefined()
-            .where('keywordid', '=', req.params.keywordid);
+            .where('keywordid', '=', req.params.keywordid)
+            .throwIfNotFound();
 
             const keywordid = req.params.keywordid;
 
@@ -86,35 +96,74 @@ module.exports = router => {
             }
 
             res.send(payload);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
-        }
-    });
-
-    //Modify single keyword //TODO\\
-    router.patch('/api/keywords/:keywordid', async (req, res) => {
-        const keywordid = req.params.keywordid;
-        try {
-            const keyword = await Keywords
-            .query()
-            .patch({keyword: req.body.keyword, cases: req.body.cases})
-            .where('keywordid', req.params.keywordid);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
-            /*const payload = {
+        } catch (err) {
+            console.log("Error catched: " + err);
+            const payload = {
                 '@error': {
                     '@message': 'Keyword does not exists',
                     '@messages': [
-                        'There is no a keyword with id ${keywordid}'
+                        'There is no a keyword with keywordid ' + req.params.keywordid,
                     ]
                 },
-                'resourse_url': '/chatbot/api/keywords/${keywordid}'
-            }*/
+                'resourse_url': '/chatbot/api/keywords/' + req.params.keywordid
+            }
+            res.status(404).send({message: payload});
         }
+    });
 
-        res.send({});
+    //Modify single keyword
+    router.patch('/api/keywords/:keywordid', async (req, res) => {
+        const keywordid = req.params.keywordid;
+        try {
+            if(!req.body.keyword || req.body.cases == null) {
+                throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
+            } else {
+                const keyword = await Keywords
+                .query()
+                .patch({keyword: req.body.keyword, cases: req.body.cases})
+                .where('keywordid', req.params.keywordid)
+                .throwIfNotFound();
+
+                res.status(204).send({});
+            }
+        } catch (err) {
+            console.log("Error catched: " + err);
+
+            if (err instanceof ValidationError) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Wrong request format',
+                        '@messages': [
+                            'Check that your parameters are correctly written and dont contain any special characters'
+                        ]
+                    },
+                    'resource_url': '/chatbot/api/keywords/' + req.params.keywordid
+                }
+                res.status(400).send({message: payload});
+            } else if (err instanceof NotFoundError){
+                const payload = {
+                    '@error': {
+                        '@message': 'Keyword does not exists',
+                        '@messages': [
+                            'There is no a keyword with keywordid ' + req.params.keywordid,
+                        ]
+                    },
+                    'resourse_url': '/chatbot/api/keywords/' + req.params.keywordid
+                }
+                res.status(404).send({message: payload});
+            } else {
+                const payload = {
+                    '@error': {
+                        '@message': 'Something went wrong',
+                        '@messages': [
+                            'Something went wrong while processing request'
+                        ]
+                    },
+                    'resourse_url': '/chatbot/api/keywords/'
+                }
+                res.status(500).send({message: payload});
+            }
+        }
     });
 
     //Remove single keyword
@@ -123,11 +172,22 @@ module.exports = router => {
         try {
             const deletedKeyword = await Keywords.query()
             .delete()
-            .where('keywordid', '=', req.params.keywordid);
-            res.send({status: 200, info: `Deleted ${deletedKeyword} row(s)`});
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+            .where('keywordid', '=', req.params.keywordid)
+            .throwIfNotFound();
+
+            res.status(204).send({});
+        } catch (err) {
+            console.log("Error catched: " + err);
+            const payload = {
+                '@error': {
+                    '@message': 'Keyword does not exists',
+                    '@messages': [
+                        'There is no a keyword with keywordid ' + req.params.keywordid,
+                    ]
+                },
+                'resourse_url': '/chatbot/api/keywords/' + req.params.keywordid
+            }
+            res.status(404).send({message: payload});
         }
     });
 
@@ -137,12 +197,30 @@ module.exports = router => {
     router.post('/api/keywords/', async (req, res) => {
         
         try {
-            const keywordAdd = await Keywords
-            .query()
-            .insert({keyword: req.body.keyword, cases: req.body.cases});
-        } catch (e){
-            console.log(e);
-            throw createStatusCodeError(404);
+            if(!req.body.keyword || req.body.cases == null) {
+                throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
+            } else {
+                const keywordAdd = await Keywords
+                .query()
+                .insert({keyword: req.body.keyword, cases: req.body.cases});
+                
+                res.status(201).send({});
+            }
+        } catch (err){
+            console.log("Error catched: " + err);
+
+            if (err instanceof ValidationError) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Wrong request format',
+                        '@messages': [
+                            'Check that your parameters are correctly written and dont contain any special characters'
+                        ]
+                    },
+                    'resource_url': '/chatbot/api/keywords/' + req.params.keywordid
+                }
+                res.status(400).send({message: payload});
+            }
         }
 });
 
@@ -186,9 +264,18 @@ module.exports = router => {
             }
 
             res.send(payload);
-        } catch (e) {
-            console.log (e);
-            throw createStatusCodeError(404);
+        } catch (err) {
+            console.log(err);
+            const payload = {
+                '@error': {
+                    '@message': 'Something went wrong',
+                    '@messages': [
+                        'Something went wrong while processing request'
+                    ]
+                },
+                'resourse_url': '/chatbot/api/responses/'
+            }
+            res.status(500).send({message: payload});
         }
     });
 
@@ -199,7 +286,8 @@ module.exports = router => {
             const response = await Responses
             .query()
             .skipUndefined()
-            .where('responseid', '=', req.params.responseid);
+            .where('responseid', '=', req.params.responseid)
+            .throwIfNotFound();
 
             const responseid = req.params.responseid;
             const keywordToSearch = response.keyword;
@@ -240,21 +328,49 @@ module.exports = router => {
             }
 
             res.send(payload);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+        } catch (err) {
+            console.log("Error catched: " + err);
+            const payload = {
+                '@error': {
+                    '@message': 'Response does not exists',
+                    '@messages': [
+                        'There is no a response with responseid ' + req.params.responsedid,
+                    ]
+                },
+                'resourse_url': '/chatbot/api/responses/' + req.params.responsedid
+            }
+            res.status(404).send({message: payload});
         }
     });
 
     //Add new response
     router.post('/api/responses/', async (req, res) => {
+
         try {
-            const responseAdd = await Responses
-            .query()
-            .insert({response: req.body.response, keyword: req.body.keyword, header: req.body.header, username: req.body.username});
-        } catch (e){
-            console.log(e);
-            throw createStatusCodeError(404);
+            if(!req.body.response || !req.body.keyword || req.body.header == null || !req.body.username) {
+                throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
+            } else {
+                const responseAdd = await Responses
+                .query()
+                .insert({response: req.body.response, keyword: req.body.keyword, header: req.body.header, username: req.body.username});
+                
+                res.status(201).send({});
+            }
+        } catch (err){
+            console.log("Error catched: " + err);
+
+            if (err instanceof ValidationError) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Wrong request format',
+                        '@messages': [
+                            'Check that your parameters are correctly written and dont contain any special characters'
+                        ]
+                    },
+                    'resource_url': '/chatbot/api/responses/' + req.params.responseid
+                }
+                res.status(400).send({message: payload});
+            }
         }
     });
 
@@ -263,11 +379,22 @@ module.exports = router => {
         try {
             const deletedResponse = await Responses.query()
             .delete()
-            .where('responseid', '=', req.params.responseid);
-            res.send({status: 200, info: `Deleted ${deletedResponse} row(s)`});
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+            .where('responseid', '=', req.params.responseid)
+            .throwIfNotFound();
+
+            res.send({status: 204, info: `Deleted ${deletedResponse} row(s)`});
+        } catch (err) {
+            console.log("Error catched: " + err);
+            const payload = {
+                '@error': {
+                    '@message': 'Response does not exists',
+                    '@messages': [
+                        'There is no a response with responseid ' + req.params.responseid,
+                    ]
+                },
+                'resourse_url': '/chatbot/api/responses/' + req.params.responseid
+            }
+            res.status(404).send({message: payload});
         }
     });
 
@@ -275,25 +402,55 @@ module.exports = router => {
     router.patch('/api/responses/:responseid', async (req, res) => {
         const responseid = req.params.responseid;
         try {
-            const response = await Responses
-            .query()
-            .patch({response: req.body.response, keyword: req.body.keyword, header: req.body.header, username: req.body.username})
-            .where('responseid', req.params.responseid);
-        } catch (e) {
-            console.log(e);
-            const payload = {
-                '@error': {
-                    '@message': 'Response does not exists',
-                    '@messages': [
-                        'There is no a response with id ${responseid}'
-                    ]
-                },
-                'resourse_url': '/chatbot/api/responses/${responseid}'
-            }
-            throw createStatusCodeError(404, payload);
-        }
+            if(!req.body.response || !req.body.keyword || req.body.header == null || !req.body.username) {
+                throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
+            } else {
+                const response = await Responses
+                .query()
+                .patch({response: req.body.response, keyword: req.body.keyword, header: req.body.header, username: req.body.username})
+                .where('responseid', req.params.responseid)
+                .throwIfNotFound();
 
-        res.send({});
+                res.status(204).send({});
+            }
+        } catch (err) {
+            console.log("Error catched: " + err);
+
+            if (err instanceof ValidationError) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Wrong request format',
+                        '@messages': [
+                            'Check that your parameters are correctly written and dont contain any special characters'
+                        ]
+                    },
+                    'resource_url': '/chatbot/api/responses/' + req.params.responseid
+                }
+                res.status(400).send({message: payload});
+            } else if (err instanceof NotFoundError){
+                const payload = {
+                    '@error': {
+                        '@message': 'Response does not exists',
+                        '@messages': [
+                            'There is no a response with responseid ' + req.params.responseid,
+                        ]
+                    },
+                    'resourse_url': '/chatbot/api/responses/' + req.params.responseid
+                }
+                res.status(404).send({message: payload});
+            } else {
+                const payload = {
+                    '@error': {
+                        '@message': 'Something went wrong',
+                        '@messages': [
+                            'Something went wrong while processing request'
+                        ]
+                    },
+                    'resourse_url': '/chatbot/api/responses/'
+                }
+                res.status(500).send({message: payload});
+            }
+        }
     });
 
     //Get statistics
@@ -326,14 +483,23 @@ module.exports = router => {
             }
 
             res.send(payload);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+        } catch (err) {
+            console.log(err);
+            const payload = {
+                '@error': {
+                    '@message': 'Something went wrong',
+                    '@messages': [
+                        'Something went wrong while processing request'
+                    ]
+                },
+                'resourse_url': '/chatbot/api/statistics/'
+            }
+            res.status(500).send({message: payload});
         }
     });
 
     //Get all users
-    router.get('/api/users', async (req, res) => {
+    router.get('/api/users/', async (req, res) => {
 
         try {
             const users = await Users.query();
@@ -373,9 +539,18 @@ module.exports = router => {
             }
 
             res.send(payload);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+        } catch (err) {
+            console.log(err);
+            const payload = {
+                '@error': {
+                    '@message': 'Something went wrong',
+                    '@messages': [
+                        'Something went wrong while processing request'
+                    ]
+                },
+                'resourse_url': '/chatbot/api/users/'
+            }
+            res.status(500).send({message: payload});
         }
     });
 
@@ -386,7 +561,8 @@ module.exports = router => {
             const user = await Users
             .query()
             .skipUndefined()
-            .where('id', '=', req.params.id);
+            .where('id', '=', req.params.id)
+            .throwIfNotFound();
 
             const userid = req.params.id;
 
@@ -414,9 +590,18 @@ module.exports = router => {
             }
 
             res.send(payload);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+        } catch (err) {
+            console.log("Error catched: " + err);
+            const payload = {
+                '@error': {
+                    '@message': 'User does not exists',
+                    '@messages': [
+                        'There is no a user with id ' + req.params.id,
+                    ]
+                },
+                'resourse_url': '/chatbot/api/users/' + req.params.id
+            }
+            res.status(404).send({message: payload});
         }
     });
 
@@ -424,26 +609,55 @@ module.exports = router => {
     router.patch('/api/users/:id', async (req, res) => {
         const userid = req.params.id;
         try {
-            const user = await Keywords
-            .query()
-            .patch({username: req.body.username})
-            .where('id', req.params.id);
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
-            const payload = {
-                '@error': {
-                    '@message': 'Keyword does not exists',
-                    '@messages': [
-                        'There is no a keyword with id ${keywordid}'
-                    ]
-                },
-                'resourse_url': '/chatbot/api/keywords/${keywordid}'
-            }
-            res.send({payload});
-        }
+            if(!req.body.keyword || req.body.cases == null) {
+                throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
+            } else {
+                const user = await Keywords
+                .query()
+                .patch({username: req.body.username})
+                .where('id', req.params.id)
+                .throwIfNotFound();
 
-        //res.send({payload});
+                res.status(204).send({});
+            }
+        } catch (err) {
+            console.log("Error catched: " + err);
+
+            if (err instanceof ValidationError) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Wrong request format',
+                        '@messages': [
+                            'Check that your parameters are correctly written and dont contain any special characters'
+                        ]
+                    },
+                    'resource_url': '/chatbot/api/users/' + req.params.id
+                }
+                res.status(400).send({message: payload});
+            } else if (err instanceof NotFoundError){
+                const payload = {
+                    '@error': {
+                        '@message': 'User does not exists',
+                        '@messages': [
+                            'There is no a user with id ' + req.params.id,
+                        ]
+                    },
+                    'resourse_url': '/chatbot/api/users/' + req.params.id
+                }
+                res.status(404).send({message: payload});
+            } else {
+                const payload = {
+                    '@error': {
+                        '@message': 'Something went wrong',
+                        '@messages': [
+                            'Something went wrong while processing request'
+                        ]
+                    },
+                    'resourse_url': '/chatbot/api/users/'
+                }
+                res.status(500).send({message: payload});
+            }
+        }
     });
     
 
@@ -451,11 +665,23 @@ module.exports = router => {
     router.delete('/api/users/:id', async (req, res) => {
 
         try {
-            const deletedUser = await Users.query().deleteById(req.params.id);
-            res.send({status: 200, info: `Deleted ${deletedUser} row(s)`});
-        } catch (e) {
-            console.log(e);
-            throw createStatusCodeError(404);
+            const deletedUser = await Users.query()
+            .deleteById(req.params.id)
+            .throwIfNotFound();
+
+            res.status(204).send({});
+        } catch (err) {
+            console.log("Error catched: " + err);
+            const payload = {
+                '@error': {
+                    '@message': 'User does not exists',
+                    '@messages': [
+                        'There is no a user with id ' + req.params.id,
+                    ]
+                },
+                'resourse_url': '/chatbot/api/users/' + req.params.id
+            }
+            res.status(404).send({message: payload});
         }
     });
 
@@ -464,12 +690,30 @@ module.exports = router => {
     //Add new user
     router.post('/api/users/', async (req, res) => {
         try {
-            const userAdd = await Users
-            .query()
-            .insert({username: req.body.username});
-        } catch (e){
-            console.log(e);
-            throw createStatusCodeError(404);
+            if(!req.body.username) {
+                throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
+            } else {
+                const userAdd = await Users
+                .query()
+                .insert({username: req.body.username});
+
+                res.status(201).send({});
+            }
+        } catch (err){
+            console.log("Error catched: " + err);
+
+            if (err instanceof ValidationError) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Wrong request format',
+                        '@messages': [
+                            'Check that your parameters are correctly written and dont contain any special characters'
+                        ]
+                    },
+                    'resource_url': '/chatbot/api/users/' + req.params.id
+                }
+                res.status(400).send({message: payload});
+            }
         }
     });
 
