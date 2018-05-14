@@ -15,6 +15,7 @@ class App extends Component {
         }
     }
     
+    
     getTodos(){
         $.ajax({
             url: 'https://jsonplaceholder.typicode.com/todos',
@@ -75,8 +76,14 @@ class App extends Component {
     }
     
     render() {
+        
+        const CSSStyle:any = {
+        textAlign: 'center',
+        border: '1px solid aquamarine'
+        };
+        
         return (
-          <div className="App">
+          <div className="App" style={CSSStyle}>
             <AddMessage addMessage={this.handleAddMessage.bind(this)}/>
             <Messages messages={this.state.messages} onDelete={this.handleDeleteMessage.bind(this)}/>
           </div>
