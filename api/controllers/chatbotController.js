@@ -47,7 +47,7 @@ module.exports = router => {
                 }
             }
 
-            res.send(payload);
+            res.header('Accept:', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log(err);
             const payload = {
@@ -59,7 +59,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/keywords/'
             }
-            res.status(500).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(500).send({message: payload});
         }
     });
 
@@ -95,7 +95,7 @@ module.exports = router => {
                 }
             }
 
-            res.send(payload);
+            res.header('Accept:', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log("Error catched: " + err);
             const payload = {
@@ -107,7 +107,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/keywords/' + req.params.keywordid
             }
-            res.status(404).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
         }
     });
 
@@ -124,7 +124,7 @@ module.exports = router => {
                 .where('keywordid', req.params.keywordid)
                 .throwIfNotFound();
 
-                res.status(204).send({});
+                res.header('Accept:', 'application/vnd.mason+json').status(204).send({info: 'The keyword is modified correctly.'});
             }
         } catch (err) {
             console.log("Error catched: " + err);
@@ -139,7 +139,7 @@ module.exports = router => {
                     },
                     'resource_url': '/chatbot/api/keywords/' + req.params.keywordid
                 }
-                res.status(400).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(400).send({message: payload});
             } else if (err instanceof NotFoundError){
                 const payload = {
                     '@error': {
@@ -150,7 +150,7 @@ module.exports = router => {
                     },
                     'resourse_url': '/chatbot/api/keywords/' + req.params.keywordid
                 }
-                res.status(404).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
             } else {
                 const payload = {
                     '@error': {
@@ -161,7 +161,7 @@ module.exports = router => {
                     },
                     'resourse_url': '/chatbot/api/keywords/'
                 }
-                res.status(500).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(500).send({message: payload});
             }
         }
     });
@@ -175,7 +175,7 @@ module.exports = router => {
             .where('keywordid', '=', req.params.keywordid)
             .throwIfNotFound();
 
-            res.status(204).send({});
+            res.header('Accept:', 'application/vnd.mason+json').status(204).send({info: 'The keyword was successfully deleted'});
         } catch (err) {
             console.log("Error catched: " + err);
             const payload = {
@@ -187,7 +187,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/keywords/' + req.params.keywordid
             }
-            res.status(404).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
         }
     });
 
@@ -204,7 +204,7 @@ module.exports = router => {
                 .query()
                 .insert({keyword: req.body.keyword, cases: req.body.cases});
                 
-                res.status(201).send({});
+                res.header('Accept:', 'application/vnd.mason+json').status(201).send({info: 'The keyword is created correctly.'}); //TO BE FIXED
             }
         } catch (err){
             console.log("Error catched: " + err);
@@ -219,7 +219,7 @@ module.exports = router => {
                     },
                     'resource_url': '/chatbot/api/keywords/' + req.params.keywordid
                 }
-                res.status(400).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(400).send({message: payload});
             }
         }
 });
@@ -263,7 +263,7 @@ module.exports = router => {
                 }
             }
 
-            res.send(payload);
+            res.header('Accept:', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log(err);
             const payload = {
@@ -275,7 +275,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/responses/'
             }
-            res.status(500).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(500).send({message: payload});
         }
     });
 
@@ -327,7 +327,7 @@ module.exports = router => {
                 }
             }
 
-            res.send(payload);
+            res.header('Accept:', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log("Error catched: " + err);
             const payload = {
@@ -339,7 +339,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/responses/' + req.params.responsedid
             }
-            res.status(404).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
         }
     });
 
@@ -353,8 +353,18 @@ module.exports = router => {
                 const responseAdd = await Responses
                 .query()
                 .insert({response: req.body.response, keyword: req.body.keyword, header: req.body.header, username: req.body.username});
+
+                const responseLocation = await Responses
+                .query()
+                .skipUndefined()
+                .where('response', '=', req.body.response)
+                .throwIfNotFound();
+
+                console.log(JSON.parse(responseLocation.responseid));
+
+                console.log('response location is ' + responseLocation.responseid);
                 
-                res.status(201).send({});
+                res.header('Location', '/chatbot/api/responses/' + responseLocation.responseid).status(201).send({info: 'The response is created correctly.'});
             }
         } catch (err){
             console.log("Error catched: " + err);
@@ -369,7 +379,7 @@ module.exports = router => {
                     },
                     'resource_url': '/chatbot/api/responses/' + req.params.responseid
                 }
-                res.status(400).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(400).send({message: payload});
             }
         }
     });
@@ -382,7 +392,7 @@ module.exports = router => {
             .where('responseid', '=', req.params.responseid)
             .throwIfNotFound();
 
-            res.send({status: 204, info: `Deleted ${deletedResponse} row(s)`});
+            res.header('Accept:', 'application/vnd.mason+json').send({status: 204, info: `The respond was successfully deleted`});
         } catch (err) {
             console.log("Error catched: " + err);
             const payload = {
@@ -394,7 +404,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/responses/' + req.params.responseid
             }
-            res.status(404).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
         }
     });
 
@@ -411,7 +421,7 @@ module.exports = router => {
                 .where('responseid', req.params.responseid)
                 .throwIfNotFound();
 
-                res.status(204).send({});
+                res.header('Accept:', 'application/vnd.mason+json').status(204).send({info: 'The response is modified correctly.'});
             }
         } catch (err) {
             console.log("Error catched: " + err);
@@ -426,7 +436,7 @@ module.exports = router => {
                     },
                     'resource_url': '/chatbot/api/responses/' + req.params.responseid
                 }
-                res.status(400).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(400).send({message: payload});
             } else if (err instanceof NotFoundError){
                 const payload = {
                     '@error': {
@@ -437,7 +447,7 @@ module.exports = router => {
                     },
                     'resourse_url': '/chatbot/api/responses/' + req.params.responseid
                 }
-                res.status(404).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
             } else {
                 const payload = {
                     '@error': {
@@ -448,7 +458,7 @@ module.exports = router => {
                     },
                     'resourse_url': '/chatbot/api/responses/'
                 }
-                res.status(500).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(500).send({message: payload});
             }
         }
     });
@@ -482,7 +492,7 @@ module.exports = router => {
                 }
             }
 
-            res.send(payload);
+            res.header('Accept:', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log(err);
             const payload = {
@@ -494,7 +504,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/statistics/'
             }
-            res.status(500).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(500).send({message: payload});
         }
     });
 
@@ -538,7 +548,7 @@ module.exports = router => {
                 }
             }
 
-            res.send(payload);
+            res.header('Accept:', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log(err);
             const payload = {
@@ -550,7 +560,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/users/'
             }
-            res.status(500).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(500).send({message: payload});
         }
     });
 
@@ -589,7 +599,7 @@ module.exports = router => {
                 }
             }
 
-            res.send(payload);
+            res.header('Accept:', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log("Error catched: " + err);
             const payload = {
@@ -601,7 +611,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/users/' + req.params.id
             }
-            res.status(404).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
         }
     });
 
@@ -618,7 +628,7 @@ module.exports = router => {
                 .where('id', req.params.id)
                 .throwIfNotFound();
 
-                res.status(204).send({});
+                res.header('Accept:', 'application/vnd.mason+json').status(204).send({info: 'The user is modified correctly.'});
             }
         } catch (err) {
             console.log("Error catched: " + err);
@@ -633,7 +643,7 @@ module.exports = router => {
                     },
                     'resource_url': '/chatbot/api/users/' + req.params.id
                 }
-                res.status(400).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(400).send({message: payload});
             } else if (err instanceof NotFoundError){
                 const payload = {
                     '@error': {
@@ -644,7 +654,7 @@ module.exports = router => {
                     },
                     'resourse_url': '/chatbot/api/users/' + req.params.id
                 }
-                res.status(404).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
             } else {
                 const payload = {
                     '@error': {
@@ -655,7 +665,7 @@ module.exports = router => {
                     },
                     'resourse_url': '/chatbot/api/users/'
                 }
-                res.status(500).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(500).send({message: payload});
             }
         }
     });
@@ -669,7 +679,7 @@ module.exports = router => {
             .deleteById(req.params.id)
             .throwIfNotFound();
 
-            res.status(204).send({});
+            res.header('Accept:', 'application/vnd.mason+json').status(204).send({info: 'User was successfully deleted'});
         } catch (err) {
             console.log("Error catched: " + err);
             const payload = {
@@ -681,7 +691,7 @@ module.exports = router => {
                 },
                 'resourse_url': '/chatbot/api/users/' + req.params.id
             }
-            res.status(404).send({message: payload});
+            res.header('Accept:', 'application/vnd.mason+json').status(404).send({message: payload});
         }
     });
 
@@ -697,7 +707,7 @@ module.exports = router => {
                 .query()
                 .insert({username: req.body.username});
 
-                res.status(201).send({});
+                res.header('Accept:', 'application/vnd.mason+json').status(201).send({info: 'The user is created correctly.'});
             }
         } catch (err){
             console.log("Error catched: " + err);
@@ -712,7 +722,7 @@ module.exports = router => {
                     },
                     'resource_url': '/chatbot/api/users/' + req.params.id
                 }
-                res.status(400).send({message: payload});
+                res.header('Accept:', 'application/vnd.mason+json').status(400).send({message: payload});
             }
         }
     });
