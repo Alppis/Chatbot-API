@@ -3,11 +3,11 @@ const assert  = require('assert');
 
 const chatbotController = require('./../../api/controllers/chatbotController');
 
-describe('Tests requests related to keywords', function() {
+describe('Tests requests related to users', function() {
     const appurl = "http://localhost:5000/api";
     
-    it('Get all keywords [GET]', function(done) {
-        request.get(appurl + "/keywords",
+    it('Get all users [GET]', function(done) {
+        request.get(appurl + "/users",
             function(err, res, body) {
                 assert.equal(err, null);
                 assert.equal(res.statusCode, 200);
@@ -15,8 +15,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Get single keyword [GET]', function(done) {
-        request.get(appurl + "/keywords/2",
+    it('Get single user [GET]', function(done) {
+        request.get(appurl + "/users/2",
             function(err, res, body) {
                 assert.equal(err, null);
                 assert.equal(res.statusCode, 200);
@@ -24,8 +24,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Get single keyword which does not exists [GET]', function(done) {
-        request.get(appurl + "/keywords/2019",
+    it('Get single user which does not exists [GET]', function(done) {
+        request.get(appurl + "/users/2019",
             function(err, res, body) {
                 assert.equal(err, null);
                 assert.equal(res.statusCode, 404);
@@ -33,13 +33,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Create new keyword [POST]', function(done) {
+    it('Create new user [POST]', function(done) {
         var options = {
-            uri: appurl+"/keywords",
+            uri: appurl+"/users",
             method: 'POST',
             json: {
-                "keyword": "PWP2018",
-                "cases": 2
+                "username": "PWP2018"
             } 
         };
         request(options,function(err, res, body) {
@@ -49,13 +48,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Create new keyword that already exists [POST]', function(done) {
+    it('Create new user that already exists [POST]', function(done) {
         var options = {
-            uri: appurl+"/keywords",
+            uri: appurl+"/users",
             method: 'POST',
             json: {
-                "keyword": "MyWords",
-                "cases": 0
+                "username": "GUTS"
             } 
         };
         request(options,function(err, res, body) {
@@ -65,12 +63,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Create new keyword with missing keyword [POST]', function(done) {
+    it('Create new user with missing username [POST]', function(done) {
         var options = {
-            uri: appurl+"/keywords",
+            uri: appurl+"/users",
             method: 'POST',
             json: {
-                "cases": 0
+                "": ""
             } 
         };
         request(options,function(err, res, body) {
@@ -80,13 +78,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Create new keyword with malformed JSON [POST]', function(done) {
+    it('Create new user with malformed JSON [POST]', function(done) {
         var options = {
-            uri: appurl+"/keywords",
+            uri: appurl+"/users",
             method: 'POST',
             json: {
-                "keyword18": "MalJSON",
-                "cases": 0
+                "username18": "Iamnotgood"
             } 
         };
         request(options,function(err, res, body) {
@@ -96,13 +93,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Modify single keyword [PATCH]', function(done) {
+    it('Modify single user [PATCH]', function(done) {
         var options = {
-            uri: appurl+"/keywords/1",
+            uri: appurl+"/users/2",
             method: 'PATCH',
             json: {
-                "keyword": "Tex",
-                "cases": 0
+                "username": "Windows is best!"
             } 
         };
         request(options,function(err, res, body) {
@@ -112,13 +108,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Modify single non existing keyword [PATCH]', function(done) {
+    it('Modify single non existing user [PATCH]', function(done) {
         var options = {
-            uri: appurl+"/keywords/2018",
+            uri: appurl+"/users/2018",
             method: 'PATCH',
             json: {
-                "keyword": "Notfound",
-                "cases": 0
+                "username": "Iamlost"
             } 
         };
         request(options,function(err, res, body) {
@@ -128,13 +123,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Modify single keyword with malformed JSON [PATCH]', function(done) {
+    it('Modify single user with malformed JSON [PATCH]', function(done) {
         var options = {
-            uri: appurl+"/keywords/1",
+            uri: appurl+"/users/1",
             method: 'PATCH',
             json: {
-                "keyword18": "NotvalidJSON",
-                "cases": 0
+                "user18": "Iammal"
             } 
         };
         request(options,function(err, res, body) {
@@ -144,13 +138,12 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Modify single keyword to same as other keyword [PATCH]', function(done) {
+    it('Modify single user to same as other user [PATCH]', function(done) {
         var options = {
-            uri: appurl+"/keywords/3",
+            uri: appurl+"/users/3",
             method: 'PATCH',
             json: {
-                "keyword": "MyWords",
-                "cases": 0
+                "username": "Killian"
             } 
         };
         request(options,function(err, res, body) {
@@ -160,8 +153,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Delete single keyword [DELETE]', function(done) {
-        request.delete(appurl + "/keywords/4",
+    it('Delete single user [DELETE]', function(done) {
+        request.delete(appurl + "/users/6",
         function(err, res, body) {
             assert.equal(err, null);
             assert.equal(res.statusCode, 204);
@@ -169,8 +162,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
-    it('Delete single non existing keyword [DELETE]', function(done) {
-        request.delete(appurl + "/keywords/2019",
+    it('Delete single non existing user [DELETE]', function(done) {
+        request.delete(appurl + "/users/2019",
         function(err, res, body) {
             assert.equal(err, null);
             assert.equal(res.statusCode, 404);

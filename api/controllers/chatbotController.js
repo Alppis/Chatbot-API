@@ -168,6 +168,17 @@ module.exports = router => {
                     'resourse_url': '/chatbot/api/keywords/' + req.params.keywordid
                 }
                 res.header('Accept', 'application/vnd.mason+json').status(404).send({message: payload});
+            } else if (err.errno == 19) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Keyword already exists in database',
+                        '@messages': [
+                            'Check that keyword you are trying to edit does not match with already existing keyword in database'
+                        ]
+                    },
+                    'resource_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(409).send({message: payload});
             } else {
                 const payload = {
                     '@error': {
@@ -461,7 +472,7 @@ module.exports = router => {
             .where('responseid', '=', req.params.responseid)
             .throwIfNotFound();
 
-            res.header('Accept', 'application/vnd.mason+json').send({status: 204, info: `The respond was successfully deleted`});
+            res.header('Accept', 'application/vnd.mason+json').status(204).send({info: 'The respond was successfully deleted'});
         } catch (err) {
             console.log("Error catched: " + err);
             const payload = {
@@ -517,6 +528,17 @@ module.exports = router => {
                     'resourse_url': '/chatbot/api/responses/' + req.params.responseid
                 }
                 res.header('Accept', 'application/vnd.mason+json').status(404).send({message: payload});
+            } else if (err.errno == 19) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Response already exists in database',
+                        '@messages': [
+                            'Check that response you are trying to edit does not match already existing response in database'
+                        ]
+                    },
+                    'resource_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(409).send({message: payload});
             } else {
                 const payload = {
                     '@error': {
@@ -574,6 +596,58 @@ module.exports = router => {
                 'resourse_url': '/chatbot/api/statistics/'
             }
             res.header('Accept', 'application/vnd.mason+json').status(500).send({message: payload});
+        }
+    });
+
+    //Get single keyword statistics
+    router.get('/api/statistics/:statisticid', async (req, res) => {
+
+        try {
+            const statistic = await Statistics
+            .query()
+            .skipUndefined()
+            .where('statisticid', '=', req.params.statisticid)
+            .throwIfNotFound();
+
+            const statisticid = req.params.statisticid;
+
+            const payload = {
+                '@namespaces': {
+                    'chatbot': {
+                        'name': '/chatbot/namespace'
+                    },
+                    'atom-thread': {
+                        'name': 'https://tools.ietf.org/html/rfc4685'
+                    }
+                },
+
+                'statistic': statistic,
+                'statisticid': statisticid,
+                'keyword': statisticid.keyword,
+                'keywordused': statisticid.keywordused,
+                'lastuse': statisticid.lastuse,
+                'latestuser': statisticid.latestuser,
+
+                '@controls': {
+                    self: {
+                        href: `/chatbot/api/statistics/${statisticid}`
+                    }
+                }
+            }
+
+            res.header('Accept', 'application/vnd.mason+json').status(200).send(payload);
+        } catch (err) {
+            console.log("Error catched: " + err);
+            const payload = {
+                '@error': {
+                    '@message': 'Statistic does not exists',
+                    '@messages': [
+                        'There is no a statistic with statisticid ' + req.params.statisticid,
+                    ]
+                },
+                'resourse_url': '/chatbot/api/statistics/' + req.params.statisticid
+            }
+            res.header('Accept', 'application/vnd.mason+json').status(404).send({message: payload});
         }
     });
 
@@ -688,10 +762,10 @@ module.exports = router => {
     router.patch('/api/users/:id', async (req, res) => {
         const userid = req.params.id;
         try {
-            if(!req.body.keyword || req.body.cases == null) {
+            if(!req.body.username) {
                 throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
             } else {
-                const user = await Keywords
+                const user = await Users
                 .query()
                 .patch({username: req.body.username})
                 .where('id', req.params.id)
@@ -724,6 +798,17 @@ module.exports = router => {
                     'resourse_url': '/chatbot/api/users/' + req.params.id
                 }
                 res.header('Accept', 'application/vnd.mason+json').status(404).send({message: payload});
+            } else if (err.errno == 19) {
+                const payload = {
+                    '@error': {
+                        '@message': 'User already exists in database',
+                        '@messages': [
+                            'Check that user you are trying to edit does not match with already existing user in database'
+                        ]
+                    },
+                    'resource_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(409).send({message: payload});
             } else {
                 const payload = {
                     '@error': {

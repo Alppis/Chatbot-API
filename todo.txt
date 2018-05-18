@@ -4,8 +4,6 @@
 
 - add more tests (make them pass)
 - client (bootstrap / react?)
-- catch json parse error / throw 400
-- add header to succesful response
 
 -------------------------------
 //\\IMPLEMENTED AND WORKING//\\
@@ -28,3 +26,6 @@
 ------------------
 
 - when starting first time after change to files, api may crash, restarting fixes problem
+- use 'npm install' to install required depedencies
+- start api: npm run start
+- run tests: npm test
