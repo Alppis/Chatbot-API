@@ -3,6 +3,7 @@
 ------------------
 
 - add more tests (make them pass)
+    - comment old ones better
 - client (bootstrap / react?)
 
 -------------------------------
@@ -14,6 +15,8 @@
 - delete single requests
 - add new (post) requests
 - patch single requests
+- catching JSON parse errors
+- catching SQlite "SQLITE_CONSTRAINT: UNIQUE constraint failed" errors
 
 -----------------------------------
 //\\IMPLEMENTED AND NOT WORKING//\\
@@ -25,7 +28,7 @@
 //\\MISC INFO//\\
 ------------------
 
-- when starting first time after change to files, api may crash, restarting fixes problem
 - use 'npm install' to install required depedencies
+- before testing get "fresh" database file from freshdb folder and replace database.db file in db folder with it
 - start api: npm run start
 - run tests: npm test
