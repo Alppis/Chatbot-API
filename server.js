@@ -22,7 +22,43 @@ const app = express()
 //Register API
 registerApi(router);
 
-require('./api/routes/chatbotRoutes')(app);
+//require('./api/routes/chatbotRoutes')(app);
+
+//Error handling for JSON parse errors
+app.use((err, req, res, next) => {
+    if (err) {
+        console.log(err);
+        console.log("request params: " + JSON.stringify(req.params));
+        console.log("request url: " + req.originalUrl);
+        const payload = {
+            '@error': {
+                '@message': 'Wrong request format',
+                '@messages': [
+                    'Check that your parameters are correctly written and dont contain any special characters'
+                ]
+            },
+            'resource_url': '/chatbot' + req.originalUrl
+        }
+        res.header('Accept', 'application/vnd.mason+json').status(400).send({message: payload});
+    } else {
+      next();
+    }
+  });
+
+  const {
+    ValidationError,
+    NotFoundError
+} = require('objection');
+
+const {
+    DBError,
+    ConstraintViolationError,
+    UniqueViolationError,
+    NotNullViolationError,
+    ForeignKeyViolationError,
+    CheckViolationError,
+    DataError
+  } = require('objection-db-errors');
 
 //Listen for incoming requests
 const server = app.listen(5000, () => console.log('Chatbot API listening on port 5000'));
