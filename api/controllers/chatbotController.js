@@ -7,6 +7,22 @@ const Users = require('../models/usersModel');
 const Responses = require('../models/responsesModel');
 const Statistics = require('../models/statisticsModel');
 
+//Requires for error handling
+const {
+    ValidationError,
+    NotFoundError
+} = require('objection');
+
+const {
+    DBError,
+    ConstraintViolationError,
+    UniqueViolationError,
+    NotNullViolationError,
+    ForeignKeyViolationError,
+    CheckViolationError,
+    DataError
+} = require('objection-db-errors');
+
 module.exports = router => {
     //Get all keywords
     router.get('/api/keywords', async (req, res) => {
@@ -206,19 +222,19 @@ module.exports = router => {
             if(!req.body.keyword || req.body.cases == null) {
                 throw new ValidationError({statusCode: 400, type: 'ModelValidation', message: {}, data: {}});
             } else {
-                const keywordAdd = await Keywords
-                .query()
-                .insert({keyword: req.body.keyword, cases: req.body.cases});
+                    const keywordAdd = await Keywords
+                    .query()
+                    .insert({keyword: req.body.keyword, cases: req.body.cases});
 
-                const keywordLocation = await Keywords
-                .query()
-                .skipUndefined()
-                .where('keyword', '=', req.body.keyword)
-                .throwIfNotFound();
-                
-                createStatEntry(keywordLocation);
-                res.header('Location', '/chatbot/api/keywords/' + keywordLocation[0].keywordid).status(201).send({info: 'The keyword is created correctly.'}); //TO BE FIXED
-            }
+                    const keywordLocation = await Keywords
+                    .query()
+                    .skipUndefined()
+                    .where('keyword', '=', req.body.keyword)
+                    .throwIfNotFound();
+                    
+                    createStatEntry(keywordLocation);
+                    res.header('Location', '/chatbot/api/keywords/' + keywordLocation[0].keywordid).status(201).send({info: 'The keyword is created correctly.'}); //TO BE FIXED
+                }
         } catch (err){
             console.log("Error catched: " + err);
 
@@ -233,6 +249,28 @@ module.exports = router => {
                     'resource_url': '/chatbot' + req.originalUrl
                 }
                 res.header('Accept', 'application/vnd.mason+json').status(400).send({message: payload});
+            } else if (err.errno == 19) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Keyword already exists in database',
+                        '@messages': [
+                            'Check that keyword you are trying to add does not already exists in database'
+                        ]
+                    },
+                    'resource_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(409).send({message: payload});
+            } else {
+                const payload = {
+                    '@error': {
+                        '@message': 'Something went wrong',
+                        '@messages': [
+                            'Something went wrong while processing request'
+                        ]
+                    },
+                    'resourse_url': '/chatbot/api/keywords/'
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(500).send({message: payload});
             }
         }
 });
@@ -389,6 +427,28 @@ module.exports = router => {
                     'resource_url': '/chatbot' + req.originalUrl
                 }
                 res.header('Accept', 'application/vnd.mason+json').status(400).send({message: payload});
+            } else if (err.errno == 19) {
+                const payload = {
+                    '@error': {
+                        '@message': 'Response already exists in database',
+                        '@messages': [
+                            'Check that resonse you are trying to add does not already exists in database'
+                        ]
+                    },
+                    'resource_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(409).send({message: payload});
+            } else {
+                const payload = {
+                    '@error': {
+                        '@message': 'Something went wrong',
+                        '@messages': [
+                            'Something went wrong while processing request'
+                        ]
+                    },
+                    'resourse_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(500).send({message: payload});
             }
         }
     });
@@ -738,6 +798,28 @@ module.exports = router => {
                     'resource_url': '/chatbot' + req.originalUrl
                 }
                 res.header('Accept', 'application/vnd.mason+json').status(400).send({message: payload});
+            } else if (err.errno == 19) {
+                const payload = {
+                    '@error': {
+                        '@message': 'User already exists in database',
+                        '@messages': [
+                            'Check that user you are trying to add does not already exists in database'
+                        ]
+                    },
+                    'resource_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(409).send({message: payload});
+            } else {
+                const payload = {
+                    '@error': {
+                        '@message': 'Something went wrong',
+                        '@messages': [
+                            'Something went wrong while processing request'
+                        ]
+                    },
+                    'resourse_url': '/chatbot' + req.originalUrl
+                }
+                res.header('Accept', 'application/vnd.mason+json').status(500).send({message: payload});
             }
         }
     });
@@ -789,20 +871,4 @@ module.exports = router => {
             console.log(err);
         }
     };
-
-    //Requires for error handling
-    const {
-        ValidationError,
-        NotFoundError
-    } = require('objection');
-  
-    const {
-        DBError,
-        ConstraintViolationError,
-        UniqueViolationError,
-        NotNullViolationError,
-        ForeignKeyViolationError,
-        CheckViolationError,
-        DataError
-    } = require('objection-db-errors');
 };

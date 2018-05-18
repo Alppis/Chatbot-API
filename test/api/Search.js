@@ -1,4 +1,4 @@
-const request = require("request");
+const request = require('request');
 const assert  = require('assert');
 
 const chatbotController = require('./../../api/controllers/chatbotController');
@@ -8,7 +8,7 @@ describe('Database search functions', function() {
         done();
     });
 
-    const appurl = "http://localhost:3000";
+    const appurl = "http://localhost:5000/api";
 
     it('Gets the wanted responses with statistics [GET]', function(done) {
         request.get(appurl + "/statistics",

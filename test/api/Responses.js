@@ -1,4 +1,4 @@
-const request = require("request");
+const request = require('request');
 const assert  = require('assert');
 
 const chatbotController = require('./../../api/controllers/chatbotController');
@@ -8,7 +8,7 @@ describe('Responses', function() {
         done();
     });
 
-    const appurl = "http://localhost:3000";
+    const appurl = "http://localhost:5000/api";
 
     it('Receives response information [GET]', function(done) {
         request.get(appurl + "/responses",

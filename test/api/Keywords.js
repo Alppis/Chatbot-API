@@ -1,10 +1,10 @@
-const request = require("request");
+const request = require('request');
 const assert  = require('assert');
 
 const chatbotController = require('./../../api/controllers/chatbotController');
 
 describe('Database search functions', function() {
-    const appurl = "http://localhost:3000";
+    const appurl = "http://localhost:5000/api";
     
     it('Gets the keywords [GET]', function(done) {
         request.get(appurl + "/keywords",
@@ -20,7 +20,7 @@ describe('Database search functions', function() {
             uri: appurl+"/keywords",
             method: 'POST',
             json: {
-                "keyword": "MyWords",
+                "keyword": "Mocha",
                 "cases": 0
             } 
         };
@@ -31,10 +31,10 @@ describe('Database search functions', function() {
         });
     });
 
-    it('Modifies the keywords [PUT]', function(done) {
+    it('Modifies the keywords [PATCH]', function(done) {
         var options = {
             uri: appurl+"/keywords",
-            method: 'PUT',
+            method: 'PATCH',
             json: {
                 "keyword": "MyWords",
                 "cases": 0

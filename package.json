@@ -1,11 +1,11 @@
 {
   "name": "chatbot",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "Chatbot application backend",
   "main": "server.js",
   "scripts": {
-    "test": "echo \\\"Error: no test specified\\\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "test": "mocha ./test/api/"
   },
   "repository": {
     "type": "git",
@@ -28,7 +28,7 @@
     "mocha": "^5.1.0",
     "objection": "^1.1.5",
     "objection-db-errors": "^1.0.0",
-    "request": "^2.85.0",
+    "request": "^2.86.0",
     "sqlite3": "^4.0.0"
   }
 }
