@@ -28,7 +28,7 @@ class Statistics extends Model {
         const Users = require('../models/usersModel');
         return {
             keywordRelationStat2: {
-                relation: Model.ManyToManyRelation,
+                relation: Model.BelongsToOneRelation,
                 modelClass: Keywords,
                 join: {
                     from: 'statistics.keyword',
@@ -37,7 +37,7 @@ class Statistics extends Model {
             },
 
             usernameRelationUser: {
-                relation: Model.ManyToManyRelation,
+                relation: Model.BelongsToOneRelation,
                 modelClass: Users,
                 join: {
                     from: 'statistics.latestuser',

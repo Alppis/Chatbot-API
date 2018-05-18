@@ -95,6 +95,7 @@ module.exports = router => {
                 }
             }
 
+            updateStatistics(keyword, 'Anonymous');
             res.header('Accept', 'application/vnd.mason+json').status(200).send(payload);
         } catch (err) {
             console.log("Error catched: " + err);
@@ -170,11 +171,16 @@ module.exports = router => {
     router.delete('/api/keywords/:keywordid', async (req, res) => {
         
         try {
+            const statKeywordRemoved = await Keywords
+            .query()
+            .where('keywordid', '=', req.params.keywordid);
+
             const deletedKeyword = await Keywords.query()
             .delete()
             .where('keywordid', '=', req.params.keywordid)
             .throwIfNotFound();
 
+            removeStatEntry(statKeywordRemoved);
             res.header('Accept', 'application/vnd.mason+json').status(204).send({info: 'The keyword was successfully deleted'});
         } catch (err) {
             console.log("Error catched: " + err);
@@ -210,6 +216,7 @@ module.exports = router => {
                 .where('keyword', '=', req.body.keyword)
                 .throwIfNotFound();
                 
+                createStatEntry(keywordLocation);
                 res.header('Location', '/chatbot/api/keywords/' + keywordLocation[0].keywordid).status(201).send({info: 'The keyword is created correctly.'}); //TO BE FIXED
             }
         } catch (err){
@@ -474,7 +481,7 @@ module.exports = router => {
             statistics.forEach(statistic => {
                 controls = {
                     self: {
-                        href: `/chatbot/api/statistics/${statistic.id}`
+                        href: `/chatbot/api/statistics/${statistic.statisticid}`
                     }
                 }
 
@@ -734,6 +741,54 @@ module.exports = router => {
             }
         }
     });
+
+    //Function to update statistics
+    const updateStatistics = async (keyword, user) => {
+        var timeStamp = new Date();
+        var dateTime = timeStamp.getFullYear() + '-'
+                        + timeStamp.getMonth() + '-'
+                        + timeStamp.getDate() + ' @ '
+                        + timeStamp.getHours() + ':'
+                        + timeStamp.getMinutes() + ':'
+                        + timeStamp.getSeconds();
+        try {
+            const keywordStats = await Statistics
+            .query()
+            .where('keyword', '=', keyword[0].keyword);
+
+            var timesUsed = keywordStats[0].keywordused + 1;
+            
+            const updatedStats = await Statistics
+            .query()
+            .patch({keywordused: timesUsed, lastuse: timeStamp})
+            .where('keyword', '=', keyword[0].keyword);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    //Function to add statistics table entry for new keyword
+    const createStatEntry = async (keyword) => {
+        try {
+            const newStatEntry = await Statistics
+            .query()
+            .insert({keyword: keyword[0].keyword});
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    //Function to remove statistics table entry when keyword is removed
+    const removeStatEntry = async (keyword) => {
+        try {
+            const statEntryRemove = await Statistics
+            .query()
+            .delete()
+            .where('keyword', '=', keyword[0].keyword);
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     //Requires for error handling
     const {
