@@ -48,8 +48,8 @@ class AddMessage extends Component {
                 <input type="text" ref="username" />
             </div>
             <div>
-                <label>Msg</label><br />
-                <input type="text" ref="msg" />
+                <label>Message</label><br />
+                <input type="text" ref="message" />
                 <button  style={{marginLeft: 20}} onClick={this.handleChannels.bind(this)}>
                     Channels
                 </button>
