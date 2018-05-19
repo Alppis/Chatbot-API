@@ -2,7 +2,8 @@ INSERT INTO "keywords" VALUES(0,'MyWords',0);
 INSERT INTO "keywords" VALUES(1,'Tux',1);
 INSERT INTO "keywords" VALUES(2,'robot',1);
 INSERT INTO "keywords" VALUES(3,'Ni!',0);
-INSERT INTO "keywords" VALUES(4,'Berserk',0);
+INSERT INTO "keywords" VALUES(4,'Monty',0);
+INSERT INTO "keywords" VALUES(5,'Berserk',0);
 
 INSERT OR REPLACE INTO "users" VALUES(0, 'Anonymous', '2018-02-16 18:48:22', 1068, 'Test String');
 INSERT OR REPLACE INTO "users" VALUES(1, 'LinuxPenguin', '2018-02-12 19:11:12', 12, 'Tux Tux');

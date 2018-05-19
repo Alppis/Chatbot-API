@@ -154,7 +154,7 @@ describe('Tests requests related to users', function() {
     });
 
     it('Delete single user [DELETE]', function(done) {
-        request.delete(appurl + "/users/6",
+        request.delete(appurl + "/users/5",
         function(err, res, body) {
             assert.equal(err, null);
             assert.equal(res.statusCode, 204);

@@ -547,18 +547,16 @@ module.exports = router => {
             .where('responseid', '=', req.params.responseid)
             .throwIfNotFound();
 
-            console.log('response object is ' + JSON.stringify(response[0].response));
             const responseid = req.params.responseid;
-            const keywordToSearch = response[0].response;
-            console.log('repo response ' + JSON.stringify(response));
+            const keywordToSearch = response[0].keyword;
             console.log('keyword to search ' + keywordToSearch);
 
+            
             const keyword = await Keywords
             .query()
             .skipUndefined()
             .where('keyword', '=', keywordToSearch);
-
-            console.log('keyword is ' + JSON.stringify(keyword));
+            console.log(JSON.stringify(keyword));
 
             const keywordid = keyword[0].keywordid;
 
@@ -582,7 +580,7 @@ module.exports = router => {
                         href: `/chatbot/api/responses/${responseid}`
                     },
                     'keyword': {
-                        href: `/chatbot/api/keywords/${keywordid}`//needs to be fixed
+                        href: `/chatbot/api/keywords/${keywordid}`
                     }
                 }
             }

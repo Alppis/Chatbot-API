@@ -20,7 +20,7 @@ describe('Tests requests related to responses', function() {
     });
 
     it('Get single response [GET]', function(done) {
-        request.get(appurl + "/responses/2",
+        request.get(appurl + "/responses/1",
             function(err, res, body) {
                 assert.equal(err, null);
                 assert.equal(res.statusCode, 200);

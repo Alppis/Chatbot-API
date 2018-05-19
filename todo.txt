@@ -28,6 +28,7 @@
 //\\MISC INFO//\\
 ------------------
 
+- create database.db from dumps 'sqlite3 database.db < keywords_schema_dump.sql' --> 'sqlite3 database.db < keywords_data_dump.sql'
 - use 'npm install' to install required depedencies
 - before testing get "fresh" database file from freshdb folder and replace database.db file in db folder with it
 - start api: npm run start
