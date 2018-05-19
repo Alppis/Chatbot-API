@@ -24,7 +24,49 @@ const {
 } = require('objection-db-errors');
 
 module.exports = router => {
-    //Get all keywords
+    //Get all keywords//
+    /* Sends GET requests to retrieve all keywords from database
+    
+    INPUT PARAMETERS:
+       None
+    
+    OUTPUT FORMAT:
+    {
+        @namespaces: {
+        name: "/chatbot/namespace/",
+        items: [
+            {keywordid0}, {keywordid1}, ..., {keywordidn}
+        ]
+    },
+    @controls: {
+        self: {
+            href: "/chatbot/api/keywords/"
+        },
+        chatbot:add-keyword: {
+            title: "Create keyword",
+            href: "/chatbot/api/keywords/",
+            encoding: "json",
+            method: "POST",
+            schemaurl: "/chatbot/schema/keyword"
+        },
+            chatbot:keywords-all: {
+            href: "chatbot/api/keywords/",
+            title: "All keywords"
+            }
+          }
+        }
+
+    SERIALIZATION FOR EACH KEYWORD:
+    controls = {
+                self: {
+                    href: `/chatbot/api/keywords/${keyword.keywordid}`
+                }
+            }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure: returns status 500
+    */
     router.get('/api/keywords', async (req, res) => {
         try {
             const keywords = await Keywords.query();
@@ -63,7 +105,7 @@ module.exports = router => {
                 }
             }
 
-            res.header('Accept', 'application/vnd.mason+json').status(200).send(payload);
+            res.header('Accept', 'application/vnd.mason+json').status(200).send({payload});
         } catch (err) {
             console.log(err);
             const payload = {
@@ -80,6 +122,39 @@ module.exports = router => {
     });
 
     //Get single keyword
+    /* Sends GET requests to retrieve single keyword from database
+    
+    INPUT PARAMETERS:
+    keywordid - ID of the keyword retrieved from database
+    
+    OUTPUT FORMAT:
+    {
+    @namespaces: {
+        chatbot: {
+            name: "/chatbot/namespace/"
+        },
+        atom-thread: {
+            name: "https://tools.ietf.org/html/rfc4685"
+        }
+    },
+    keyword: [
+        {
+            keywordid: <id of keyword>,
+            keyword: <keyword>,
+            cases: <cases for keyword>
+        }
+    ],
+    @controls: {
+        self: {
+            href: "/chatbot/api/keywords/{keywordid}"
+            }
+        }
+    }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure, not found : returns status 404
+    */
     router.get('/api/keywords/:keywordid', async (req, res) => {
         
         try {
@@ -129,6 +204,24 @@ module.exports = router => {
     });
 
     //Modify single keyword
+    /* Sends PATCH requests to modify single keyword from database
+    
+    INPUT PARAMETERS:
+    keywordid - ID of the keyword retrieved from database
+
+    INPUT BODY FORMAT:
+    {
+        "keyword": "<newKeyword>",
+        "cases": <numberOfCases>
+    }
+
+    RESPONSES:
+    Succes: returns status 204
+    Failure, wrong request format: returns status 400
+    Failure, keyword not found: returns status 404
+    Failure, same keyword already in database: returns status 409
+    Failure, internal server error: returns status 500
+    */
     router.patch('/api/keywords/:keywordid', async (req, res) => {
         const keywordid = req.params.keywordid;
         try {
@@ -195,6 +288,15 @@ module.exports = router => {
     });
 
     //Remove single keyword
+    /* Sends DELETE requests to remove single keyword from database
+    
+    INPUT PARAMETERS:
+    keywordid - ID of the keyword to be removed from database
+
+    RESPONSES:
+    Succes: returns status 204
+    Failure, keyword not found: returns status 404
+    */
     router.delete('/api/keywords/:keywordid', async (req, res) => {
         
         try {
@@ -227,6 +329,23 @@ module.exports = router => {
     //Modify keywords and assiciated responses //TODO\\
 
     //Add new keyword
+    /* Sends POST requests to add single keyword to database
+    
+    INPUT PARAMETERS:
+     None
+
+    INPUT BODY FORMAT:
+    {
+        "keyword": "<newKeyword>",
+        "cases": <numberOfCases>
+    }
+
+    RESPONSES:
+    Succes: returns status 201
+    Failure, wrong request format: returns status 400
+    Failure, same keyword already in database: returns status 409
+    Failure, internal server error: returns status 500
+    */
     router.post('/api/keywords/', async (req, res) => {
         
         try {
@@ -287,6 +406,48 @@ module.exports = router => {
 });
 
     //Get all responses
+    /* Sends GET requests to retrieve all responses from database
+    
+    INPUT PARAMETERS:
+       None
+    
+    OUTPUT FORMAT:
+    {
+        @namespaces: {
+        name: "/chatbot/namespace/",
+        items: [
+            {responseid0}, {responseid1}, ..., {responseidn}
+        ]
+    },
+    @controls: {
+        self: {
+            href: "/chatbot/api/responses/"
+        },
+        chatbot:add-resonse: {
+            title: "Create response",
+            href: "/chatbot/api/responses/",
+            encoding: "json",
+            method: "POST",
+            schemaurl: "/chatbot/schema/response"
+        },
+            chatbot:responses-all: {
+            href: "chatbot/api/responses/",
+            title: "All responses"
+            }
+          }
+        }
+
+    SERIALIZATION FOR EACH RESPONSE:
+    controls = {
+                self: {
+                    href: `/chatbot/api/keywords/${response.responseid}`
+                }
+            }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure: returns status 500
+    */
     router.get('/api/responses', async (req, res) => {
         const responses = await Responses.query();
 
@@ -342,6 +503,41 @@ module.exports = router => {
     });
 
     //Get single response
+    /* Sends GET requests to retrieve single response from database
+    
+    INPUT PARAMETERS:
+    responseid - ID of the response retrieved from database
+    
+    OUTPUT FORMAT:
+    {
+    @namespaces: {
+        chatbot: {
+            name: "/chatbot/namespace/"
+        },
+        atom-thread: {
+            name: "https://tools.ietf.org/html/rfc4685"
+        }
+    },
+    response: [
+        {
+            responseid: <id of response>,
+            response: <response>,
+            keyword: <keyword for response>
+            header: <header for response>
+            username: <user related to response>
+        }
+    ],
+    @controls: {
+        self: {
+            href: "/chatbot/api/responses/{responseid}"
+            }
+        }
+    }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure, not found : returns status 404
+    */
     router.get('/api/responses/:responseid', async (req, res) => {
 
         try {
@@ -406,6 +602,25 @@ module.exports = router => {
     });
 
     //Add new response
+    /* Sends POST requests to add single response to database
+    
+    INPUT PARAMETERS:
+     None
+
+    INPUT BODY FORMAT:
+    {
+        "response": "<newResponse>",
+        "keyword": "<newAssociatedKeyword>",
+        "header": "<newHeader>",
+        "username": "<newUsername>"
+    }
+
+    RESPONSES:
+    Succes: returns status 201
+    Failure, wrong request format: returns status 400
+    Failure, same keyword already in database: returns status 409
+    Failure, internal server error: returns status 500
+    */
     router.post('/api/responses/', async (req, res) => {
 
         try {
@@ -465,6 +680,15 @@ module.exports = router => {
     });
 
     //Delete single response
+    /* Sends DELETE requests to remove single response from database
+    
+    INPUT PARAMETERS:
+    responseid - ID of the response to be removed from database
+
+    RESPONSES:
+    Succes: returns status 204
+    Failure, keyword not found: returns status 404
+    */
     router.delete('/api/responses/:responseid', async (req, res) => {
         try {
             const deletedResponse = await Responses.query()
@@ -489,6 +713,26 @@ module.exports = router => {
     });
 
     //Modify single response
+    /* Sends PATCH requests to modify single response from database
+    
+    INPUT PARAMETERS:
+    responseid - ID of the response to be modified from database
+
+    INPUT BODY FORMAT:
+    {
+        "response": "<newResponse>",
+        "keyword": "<newKeyword>",
+        "header": "<newHeader>",
+        "username": "<newUsername>"
+    }
+
+    RESPONSES:
+    Succes: returns status 204
+    Failure, wrong request format: returns status 400
+    Failure, keyword not found: returns status 404
+    Failure, same keyword already in database: returns status 409
+    Failure, internal server error: returns status 500
+    */
     router.patch('/api/responses/:responseid', async (req, res) => {
         const responseid = req.params.responseid;
         try {
@@ -555,6 +799,41 @@ module.exports = router => {
     });
 
     //Get statistics
+    /* Sends GET requests to retrieve all statistics from database
+    
+    INPUT PARAMETERS:
+       None
+    
+    OUTPUT FORMAT:
+    {
+        @namespaces: {
+        name: "/chatbot/namespace/",
+        items: [
+            {statisticid0}, {statistiid1}, ..., {statistiidn}
+        ]
+    },
+    @controls: {
+        self: {
+            href: "/chatbot/api/keywords/"
+        },
+            chatbot:statistics-all: {
+            href: "chatbot/api/statistics/",
+            title: "All statistics"
+            }
+          }
+        }
+
+    SERIALIZATION FOR EACH STATISTIC:
+    controls = {
+                self: {
+                    href: `/chatbot/api/statistics/${statistic.statisticid}`
+                }
+            }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure: returns status 500
+    */
     router.get('/api/statistics', async (req, res) => {
 
         try {
@@ -579,6 +858,10 @@ module.exports = router => {
                 '@controls': {
                     self: {
                         href: `/chatbot/api/statistics/`
+                    },
+                    "chatbot:statistics-all":  {
+                        href: `chatbot/api/statistics/`,
+                        'title': 'All statistics'
                     }
                 }
             }
@@ -600,6 +883,41 @@ module.exports = router => {
     });
 
     //Get single keyword statistics
+    /* Sends GET requests to retrieve single statistic for keyword from database
+    
+    INPUT PARAMETERS:
+    statisticid - ID of the statistic retrieved from database
+    
+    OUTPUT FORMAT:
+    {
+    @namespaces: {
+        chatbot: {
+            name: "/chatbot/namespace/"
+        },
+        atom-thread: {
+            name: "https://tools.ietf.org/html/rfc4685"
+        }
+    },
+    response: [
+        {
+            statisticid: <id of statistic>,
+            keyword: <keyword for statistic>,
+            keywordused: <times keyword is accessed>,
+            lastuse: <time when keyword was last used>,
+            latestuser: <latest user of keyword>
+        }
+    ],
+    @controls: {
+        self: {
+            href: "/chatbot/api/statistics/{statisticid}"
+            }
+        }
+    }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure, not found : returns status 404
+    */
     router.get('/api/statistics/:statisticid', async (req, res) => {
 
         try {
@@ -652,6 +970,48 @@ module.exports = router => {
     });
 
     //Get all users
+    /* Sends GET requests to retrieve all users from database
+    
+    INPUT PARAMETERS:
+       None
+    
+    OUTPUT FORMAT:
+    {
+        @namespaces: {
+        name: "/chatbot/namespace/",
+        items: [
+            {id0}, {id1}, ..., {idn}
+        ]
+    },
+    @controls: {
+        self: {
+            href: "/chatbot/api/users/"
+        },
+        chatbot:add-user: {
+            title: "Create user",
+            href: "/chatbot/api/users/",
+            encoding: "json",
+            method: "POST",
+            schemaurl: "/chatbot/schema/user"
+        },
+            chatbot:users-all: {
+            href: "chatbot/api/users/",
+            title: "All users"
+            }
+          }
+        }
+
+    SERIALIZATION FOR EACH USER:
+    controls = {
+                self: {
+                    href: `/chatbot/api/users/${user.id}`
+                }
+            }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure: returns status 500
+    */
     router.get('/api/users/', async (req, res) => {
 
         try {
@@ -708,6 +1068,41 @@ module.exports = router => {
     });
 
     //Get single user
+    /* Sends GET requests to retrieve single user from database
+    
+    INPUT PARAMETERS:
+    id - ID of the user retrieved from database
+    
+    OUTPUT FORMAT:
+    {
+    @namespaces: {
+        chatbot: {
+            name: "/chatbot/namespace/"
+        },
+        atom-thread: {
+            name: "https://tools.ietf.org/html/rfc4685"
+        }
+    },
+    user: [
+        {
+            id: <id of user>,
+            username: <username of user>,
+            lastlogin: <when user login last time>,
+            replies: <replies sent by user>,
+            latestreply: <latest replý by user>
+        }
+    ],
+    @controls: {
+        self: {
+            href: "/chatbot/api/users/{id}"
+            }
+        }
+    }
+
+    RESPONSES:
+    Succes: returns status 200
+    Failure, not found : returns status 404
+    */
     router.get('/api/users/:id', async (req, res) => {
 
         try {
@@ -759,6 +1154,23 @@ module.exports = router => {
     });
 
     //Modify single user
+    /* Sends PATCH requests to modify single user from database
+    
+    INPUT PARAMETERS:
+    id - ID of the user to be modified from database
+
+    INPUT BODY FORMAT:
+    {
+        "username": "<newUsername>"
+    }
+
+    RESPONSES:
+    Succes: returns status 204
+    Failure, wrong request format: returns status 400
+    Failure, keyword not found: returns status 404
+    Failure, same keyword already in database: returns status 409
+    Failure, internal server error: returns status 500
+    */
     router.patch('/api/users/:id', async (req, res) => {
         const userid = req.params.id;
         try {
@@ -826,6 +1238,15 @@ module.exports = router => {
     
 
     //Remove single user
+    /* Sends DELETE requests to remove single user from database
+    
+    INPUT PARAMETERS:
+    id - ID of the user to be removed from database
+
+    RESPONSES:
+    Succes: returns status 204
+    Failure, keyword not found: returns status 404
+    */
     router.delete('/api/users/:id', async (req, res) => {
 
         try {
@@ -852,6 +1273,22 @@ module.exports = router => {
     //Modify users //TODO\\
 
     //Add new user
+    /* Sends POST requests to add single user to database
+    
+    INPUT PARAMETERS:
+     None
+
+    INPUT BODY FORMAT:
+    {
+        "username": "<newUsername>"
+    }
+
+    RESPONSES:
+    Succes: returns status 201
+    Failure, wrong request format: returns status 400
+    Failure, same keyword already in database: returns status 409
+    Failure, internal server error: returns status 500
+    */
     router.post('/api/users/', async (req, res) => {
         try {
             if(!req.body.username) {
