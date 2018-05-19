@@ -547,8 +547,10 @@ module.exports = router => {
             .where('responseid', '=', req.params.responseid)
             .throwIfNotFound();
 
+            console.log('response object is ' + JSON.stringify(response[0].response));
             const responseid = req.params.responseid;
-            const keywordToSearch = response.keyword;
+            const keywordToSearch = response[0].response;
+            console.log('repo response ' + JSON.stringify(response));
             console.log('keyword to search ' + keywordToSearch);
 
             const keyword = await Keywords
@@ -558,7 +560,7 @@ module.exports = router => {
 
             console.log('keyword is ' + JSON.stringify(keyword));
 
-            const keywordid = keyword.keywordid;
+            const keywordid = keyword[0].keywordid;
 
             const payload = {
                 '@namespaces': {
@@ -580,7 +582,7 @@ module.exports = router => {
                         href: `/chatbot/api/responses/${responseid}`
                     },
                     'keyword': {
-                        href: `/chatbot/api/responses/${keyword.keywordid}`//needs to be fixed
+                        href: `/chatbot/api/keywords/${keywordid}`//needs to be fixed
                     }
                 }
             }
