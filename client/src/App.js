@@ -3,7 +3,8 @@ import uuid from 'uuid';
 import $ from 'jquery';
 import Messages from './Components/Messages';
 import AddMessage from './Components/AddMessage';
-import Todos from './Components/Todos'
+import Buttons from './Components/Buttons';
+import Statistics from './Components/Statistics';
 import './App.css';
 
 class App extends Component {
@@ -33,23 +34,7 @@ class App extends Component {
     }
     
     getMessages(){
-        this.setState({messages: [
-        {
-            id:uuid.v4(),
-            username: 'Anynymous',
-            msg: 'Test message'
-        },
-        {
-            id:uuid.v4(),
-            username: 'The one',
-            msg: 'MyWords'
-        },
-        {
-            id:uuid.v4(),
-            username: 'LinuxPenquin',
-            msg: 'Tux'
-        }
-        ]});
+        this.setState({messages: []});
     }
     
     componentWillMount(){
@@ -77,16 +62,21 @@ class App extends Component {
     
     render() {
         
-        const CSSStyle:any = {
-        textAlign: 'center',
-        border: '1px solid aquamarine'
-        };
+
         
         return (
-          <div className="App" style={CSSStyle}>
-            <AddMessage addMessage={this.handleAddMessage.bind(this)}/>
-            <Messages messages={this.state.messages} onDelete={this.handleDeleteMessage.bind(this)}/>
-          </div>
+            <div id="parent" className="App">
+                <div id="APIButtons">
+                    <Buttons buttons />
+                </div>
+                <div id="APIMessages" style={{marginTop:50, marginLeft:50}}>
+                    <AddMessage addMessage={this.handleAddMessage.bind(this)}/>
+                    <Messages messages={this.state.messages} onDelete={this.handleDeleteMessage.bind(this)}/>
+                </div>
+                <div>
+                    <Statistics statistics />
+                </div>
+            </div>
         );
     }
 }

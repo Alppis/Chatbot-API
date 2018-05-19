@@ -10,35 +10,38 @@ class AddMessage extends Component {
     }
 
 
-  handleSubmit(e){
-    if(this.refs.msg.value === ''){
-        alert('Message is required');
-    }else if(this.refs.username.value === ''){
-        this.setState({newMessage:{
-            id: uuid.v4(),
-            username: 'Anonymous',
-            msg: this.refs.msg.value
-        }}, function(){
-            //console.log(this.state);
-            this.props.addMessage(this.state.newMessage);
-        });
-    }else {
-        this.setState({newMessage:{
-            id: uuid.v4(),
-            username: this.refs.username.value,
-            msg: this.refs.msg.value
-        }}, function(){
-            //console.log(this.state);
-            this.props.addMessage(this.state.newMessage);
-        });
-    }        
-    e.preventDefault();
-  }
+    handleChannels(e){  
+        console.log('Channels');
+    }
+    
+    handleSubmit(e){
+        if(this.refs.msg.value === ''){
+            alert('Message is required');
+        }else if(this.refs.username.value === ''){
+            this.setState({newMessage:{
+                id: uuid.v4(),
+                username: 'Anonymous',
+                msg: this.refs.msg.value
+            }}, function(){
+                //console.log(this.state);
+                this.props.addMessage(this.state.newMessage);
+            });
+        }else {
+            this.setState({newMessage:{
+                id: uuid.v4(),
+                username: this.refs.username.value,
+                msg: this.refs.msg.value
+            }}, function(){
+                //console.log(this.state);
+                this.props.addMessage(this.state.newMessage);
+            });
+        }        
+        e.preventDefault();
+    }
   
   render() {
     return (
-      <div>
-        <h3>Add Message</h3>
+        <div>
         <form onSubmit={this.handleSubmit.bind(this)}>
             <div>
                 <label>Username</label><br />
@@ -47,6 +50,9 @@ class AddMessage extends Component {
             <div>
                 <label>Msg</label><br />
                 <input type="text" ref="msg" />
+                <button  style={{marginLeft: 20}} onClick={this.handleChannels.bind(this)}>
+                    Channels
+                </button>
             </div>
             <br />
             <input type="submit" value="Submit" />
