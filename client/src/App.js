@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import uuid from 'uuid';
 import $ from 'jquery';
 import Messages from './Components/Messages';
 import AddMessage from './Components/AddMessage';
@@ -12,26 +11,12 @@ class App extends Component {
         super();
         this.state = {
             messages: [],
-            todos: []
+            response: ''
         }
     }
     
     
-    getTodos(){
-        $.ajax({
-            url: 'https://jsonplaceholder.typicode.com/todos',
-            dataType:'json',
-            cache: false,
-            success: function(data){
-                this.setState({todos: data}, function(){
-                    console.log(this.state);
-                });
-            }.bind(this),
-            error: function(xhr, status, err){
-                console.log(err);
-            }
-        });
-    }
+   
     
     getMessages(){
         this.setState({messages: []});
@@ -39,13 +24,23 @@ class App extends Component {
     
     componentWillMount(){
         this.getMessages();
-        this.getTodos();
 
     }
   
     componentDidMount(){
-        this.getTodos();
+        this.callApi()
+        .then(res => this.setState({ response: res.express }))
+        .catch(err => console.log(err));
     }
+    
+    callApi = async () => {
+        const response = await fetch('/api/keywords');
+        const body = await response.json();
+        
+        if (response.status !== 200) throw Error(body.message);
+        
+        return body;
+    };
     
     handleAddMessage(message){
         let messages = this.state.messages;
