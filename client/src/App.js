@@ -16,10 +16,12 @@ class App extends Component {
     }
     
     
-   
     
     getMessages(){
-        this.setState({messages: []});
+        this.setState({messages: [
+        
+
+        ]});
     }
     
     componentWillMount(){
@@ -56,9 +58,7 @@ class App extends Component {
     }
     
     render() {
-        
-
-        
+         
         return (
             <div id="parent" className="App">
                 <div id="APIButtons">

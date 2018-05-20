@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import uuid from 'uuid';
 
 class AddMessage extends Component {
     constructor(){
@@ -15,22 +14,20 @@ class AddMessage extends Component {
     }
     
     handleSubmit(e){
-        if(this.refs.msg.value === ''){
+        if(this.refs.message.value === ''){
             alert('Message is required');
         }else if(this.refs.username.value === ''){
             this.setState({newMessage:{
-                id: uuid.v4(),
                 username: 'Anonymous',
-                msg: this.refs.msg.value
+                msg: this.refs.message.value
             }}, function(){
                 //console.log(this.state);
                 this.props.addMessage(this.state.newMessage);
             });
         }else {
             this.setState({newMessage:{
-                id: uuid.v4(),
                 username: this.refs.username.value,
-                msg: this.refs.msg.value
+                msg: this.refs.message.value
             }}, function(){
                 //console.log(this.state);
                 this.props.addMessage(this.state.newMessage);
