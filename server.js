@@ -22,8 +22,6 @@ const app = express()
 //Register API
 registerApi(router);
 
-//require('./api/routes/chatbotRoutes')(app);
-
 //Error handling for JSON parse errors
 app.use((err, req, res, next) => {
     if (err) {

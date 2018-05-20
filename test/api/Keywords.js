@@ -6,6 +6,8 @@ const chatbotController = require('./../../api/controllers/chatbotController');
 describe('Tests requests related to keywords', function() {
     const appurl = "http://localhost:5000/api";
     
+    //Test get all keywords with correct path
+    //Expected: response status 200
     it('Get all keywords [GET]', function(done) {
         request.get(appurl + "/keywords",
             function(err, res, body) {
@@ -15,6 +17,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test get single keyword with correct path
+    //Expected: response status 200
     it('Get single keyword [GET]', function(done) {
         request.get(appurl + "/keywords/2",
             function(err, res, body) {
@@ -24,6 +28,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test get single keyword with keywordid that does not exist in database
+    //Expected: response status 404
     it('Get single keyword which does not exists [GET]', function(done) {
         request.get(appurl + "/keywords/2019",
             function(err, res, body) {
@@ -33,6 +39,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test create new keyword POST with valid JSON
+    //Expected: response status 201
     it('Create new keyword [POST]', function(done) {
         var options = {
             uri: appurl+"/keywords",
@@ -49,6 +57,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+     //Test creating new keyword POST which already exists in db
+    //Expected: response status 409
     it('Create new keyword that already exists [POST]', function(done) {
         var options = {
             uri: appurl+"/keywords",
@@ -65,6 +75,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test creating new keyword POST with invalid json body format
+    //Expected: response status 400
     it('Create new keyword with missing keyword [POST]', function(done) {
         var options = {
             uri: appurl+"/keywords",
@@ -80,6 +92,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test creating new keyword POST with invalid json body format
+    //Expected: response status 400
     it('Create new keyword with malformed JSON [POST]', function(done) {
         var options = {
             uri: appurl+"/keywords",
@@ -96,6 +110,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Testing modifying single keyword with valid JSON body format
+    //Expected: response status 204
     it('Modify single keyword [PATCH]', function(done) {
         var options = {
             uri: appurl+"/keywords/1",
@@ -112,6 +128,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test modifying non existing keyword details
+    //Expected: response status 404
     it('Modify single non existing keyword [PATCH]', function(done) {
         var options = {
             uri: appurl+"/keywords/2018",
@@ -128,6 +146,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Testing modifying keyword with non valid JSON body format
+    //Expected: response status 400
     it('Modify single keyword with malformed JSON [PATCH]', function(done) {
         var options = {
             uri: appurl+"/keywords/1",
@@ -144,6 +164,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+     //Test modifying keyword to same as other keyword in database
+    //Expected: response status 409
     it('Modify single keyword to same as other keyword [PATCH]', function(done) {
         var options = {
             uri: appurl+"/keywords/3",
@@ -160,6 +182,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test removing single keyword
+    //Expected: response status 204
     it('Delete single keyword [DELETE]', function(done) {
         request.delete(appurl + "/keywords/4",
         function(err, res, body) {
@@ -169,6 +193,8 @@ describe('Tests requests related to keywords', function() {
         });
     });
 
+    //Test trying to delete keyword that does not exist in database
+    //Expected: response status 404
     it('Delete single non existing keyword [DELETE]', function(done) {
         request.delete(appurl + "/keywords/2019",
         function(err, res, body) {

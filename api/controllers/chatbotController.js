@@ -234,8 +234,6 @@ module.exports = router => {
                 .where('keywordid', req.params.keywordid)
                 .throwIfNotFound();
 
-                console.log('keywordid ' + keywordid);
-                console.log('keyword ' + req.body.keyword)
                 modifyStatEntry(keywordid, req.body.keyword);
                 res.header('Accept', 'application/vnd.mason+json').status(204).send({info: 'The keyword is modified correctly.'});
             }
@@ -1472,15 +1470,10 @@ module.exports = router => {
     //Function to modify statistics table entry for modified keyword
      const modifyStatEntry = async (oldKeywordid, newKeyword) => {
         try {
-
-            console.log('oldkeywordid' + oldKeywordid);
-            console.log('newkeyword ' + newKeyword)
             const keywordToPatch = await Keywords
             .query()
             .skipUndefined()
             .where('keywordid', '=', oldKeywordid)
-
-            console.log('keyword to pathc' + JSON.stringify(keywordToPatch));
 
             const patchStatEntry = await Statistics
             .query()
