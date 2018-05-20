@@ -234,6 +234,9 @@ module.exports = router => {
                 .where('keywordid', req.params.keywordid)
                 .throwIfNotFound();
 
+                console.log('keywordid ' + keywordid);
+                console.log('keyword ' + req.body.keyword)
+                modifyStatEntry(keywordid, req.body.keyword);
                 res.header('Accept', 'application/vnd.mason+json').status(204).send({info: 'The keyword is modified correctly.'});
             }
         } catch (err) {
@@ -1346,6 +1349,90 @@ module.exports = router => {
         }
     });
 
+    //GET all channels
+    /*
+    *THIS FEATURE HAS NOT BEEN IMPLEMENTED
+    */
+    router.get('/api/channels', async (req, res) => {
+        try {
+            const payload = {
+                '@error': {
+                    '@message': 'This feature has not been implemented yet'
+                },
+                'resource_url': '/chatbot' + req.originalUrl
+                }
+            res.header('Accept', 'application/vnd.mason+json').status(501).send({message: payload});
+        } catch (err) {
+            console.log(err);
+            const payload = {
+                '@error': {
+                    '@message': 'Something went wrong',
+                    '@messages': [
+                        'Something went wrong while processing request'
+                    ]
+                },
+                'resourse_url': '/chatbot' + req.originalUrl
+            }
+            res.header('Accept', 'application/vnd.mason+json').status(500).send({message: payload});
+        }
+    });
+
+    //GET single channel
+    /*
+    *THIS FEATURE HAS NOT BEEN IMPLEMENTED
+    */
+    router.get('/api/channels/:channelid', async (req, res) => {
+        try {
+            const payload = {
+                '@error': {
+                    '@message': 'This feature has not been implemented yet'
+                },
+                'resource_url': '/chatbot' + req.originalUrl
+                }
+            res.header('Accept', 'application/vnd.mason+json').status(501).send({message: payload});
+        } catch (err) {
+            console.log(err);
+            const payload = {
+                '@error': {
+                    '@message': 'Something went wrong',
+                    '@messages': [
+                        'Something went wrong while processing request'
+                    ]
+                },
+                'resourse_url': '/chatbot' + req.originalUrl
+            }
+            res.header('Accept', 'application/vnd.mason+json').status(500).send({message: payload});
+        }
+    });
+
+    //GET search results
+    /*
+    *THIS FEATURE HAS NOT BEEN IMPLEMENTED
+    */
+    router.get('/api/search', async (req, res) => {
+        try {
+            const payload = {
+                '@error': {
+                    '@message': 'This feature has not been implemented yet'
+                },
+                'resource_url': '/chatbot' + req.originalUrl
+                }
+            res.header('Accept', 'application/vnd.mason+json').status(501).send({message: payload});
+        } catch (err) {
+            console.log(err);
+            const payload = {
+                '@error': {
+                    '@message': 'Something went wrong',
+                    '@messages': [
+                        'Something went wrong while processing request'
+                    ]
+                },
+                'resourse_url': '/chatbot' + req.originalUrl
+            }
+            res.header('Accept', 'application/vnd.mason+json').status(500).send({message: payload});
+        }
+    });
+
     //Function to update statistics
     const updateStatistics = async (keyword, user) => {
         var timeStamp = new Date();
@@ -1381,6 +1468,28 @@ module.exports = router => {
             console.log(err);
         }
     };
+
+    //Function to modify statistics table entry for modified keyword
+     const modifyStatEntry = async (oldKeywordid, newKeyword) => {
+        try {
+
+            console.log('oldkeywordid' + oldKeywordid);
+            console.log('newkeyword ' + newKeyword)
+            const keywordToPatch = await Keywords
+            .query()
+            .skipUndefined()
+            .where('keywordid', '=', oldKeywordid)
+
+            console.log('keyword to pathc' + JSON.stringify(keywordToPatch));
+
+            const patchStatEntry = await Statistics
+            .query()
+            .patch({keyword: newKeyword})
+            .where('keyword', '=', keywordToPatch[0].keyword);
+        } catch (err) {
+            console.log(err);
+        }
+     };
 
     //Function to remove statistics table entry when keyword is removed
     const removeStatEntry = async (keyword) => {
