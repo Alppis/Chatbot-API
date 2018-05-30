@@ -33,7 +33,8 @@
     "sqlite3": "^4.0.0"
   }
 
-    - use 'npm install' to install required depedencies
+    - use 'npm install' in root folder to install required depedencies for API
+      AND 'npm install' in chatbot/client folder to install required depedencies for client
     OR
     - install one by one by hand
 
@@ -44,8 +45,13 @@
     OR
     - use predone located in chatbot/freshdb
 
-- Startting API
+    NOTICE: after every test run, database setup has to be done again
+
+- Startting only API
     - use 'npm run server' command to start API
+
+- Startting API & Chatbot client
+    - use 'npm run dev' command to start API and Chatbot client
 
 - Running tests
     - start test with 'npm test' command
