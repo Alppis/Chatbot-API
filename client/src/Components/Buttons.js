@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './ButtonsStyle.css'
 
 class Buttons extends Component {
+
+
     
     handleAddKeyword(e){
         console.log('Add keyword');
@@ -30,6 +32,7 @@ class Buttons extends Component {
     render() {
         return (
             <div className="APIButtons">
+                
                 <button  style={{marginRight: 150}} onClick={this.handleAddKeyword.bind(this)}>
                     ADD KEYWORD
                 </button>

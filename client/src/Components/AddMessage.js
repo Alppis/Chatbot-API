@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 class AddMessage extends Component {
     constructor(){
         super();
         this.state = {
-            newMessage:{}
+            newMessage:{},
+            username: undefined,
+            keyword: undefined
         }
     }
 
@@ -35,14 +38,59 @@ class AddMessage extends Component {
         }        
         e.preventDefault();
     }
+
+  setUsername = (e) =>
+  {
+    this.setState({
+        username: e.target.value
+    });
+  }
+
+  setKeyword = (e) => {
+    this.setState({
+        keyword: e.target.value
+    });
+  }
+
+  postNewKeyword = () => {
+    if(this.state.keyword)
+    {
+        axios.post('/api/keywords', {keyword: this.state.keyword, cases: 0})
+        .then((res) => {
+            console.log(res.data.info);
+            this.setState({
+                keyword: undefined
+            })
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+  }
+
+
+
+
   
   render() {
     return (
         <div>
+
+        <div>
+                
+                <label>Keyword</label><br />
+                <input type="text" onChange={this.setKeyword}  />
+                <button onClick={this.postNewKeyword} >Post new Keyword</button>
+            </div>
+
         <form onSubmit={this.handleSubmit.bind(this)}>
+
+
+
             <div>
+                
                 <label>Username</label><br />
-                <input type="text" ref="username" />
+                <input type="text" onChange={this.setUsername} />
             </div>
             <div>
                 <label>Message</label><br />

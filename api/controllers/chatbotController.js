@@ -348,6 +348,8 @@ module.exports = router => {
     Failure, internal server error: returns status 500
     */
     router.post('/api/keywords/', async (req, res) => {
+
+        console.log(req.body)
         
         try {
             if(!req.body.keyword || req.body.cases == null) {

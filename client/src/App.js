@@ -4,6 +4,7 @@ import Messages from './Components/Messages';
 import AddMessage from './Components/AddMessage';
 import Buttons from './Components/Buttons';
 import Statistics from './Components/Statistics';
+import axios from 'axios';
 import './App.css';
 
 class App extends Component {
@@ -30,19 +31,38 @@ class App extends Component {
     }
   
     componentDidMount(){
-        this.callApi()
+        /*this.callApi()
         .then(res => this.setState({ response: res.express }))
-        .catch(err => console.log(err));
+        .catch(err => console.log(err));*/
+
+        /*this.fetch()
+        .then((res) => {
+            console.log("callapi",res.payload["@namespaces"].items);
+        })
+        .catch(err => console.log(err));*/
+
+        axios.get('/api/keywords')
+        .then((res) => {
+            console.log(res.data.payload["@namespaces"].items)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+
+
     }
     
-    callApi = async () => {
+    /*fetch = async () => {
         const response = await fetch('/api/keywords');
+
         const body = await response.json();
         
         if (response.status !== 200) throw Error(body.message);
         
         return body;
-    };
+    };*/
+
+
     
     handleAddMessage(message){
         let messages = this.state.messages;
