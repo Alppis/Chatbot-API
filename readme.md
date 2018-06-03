@@ -33,6 +33,8 @@
     "sqlite3": "^4.0.0"
   }
 
+	- use 'npm run installall' to install all dependencies 
+	OR
     - use 'npm install' in root folder to install required depedencies for API
       AND 'npm install' in chatbot/client folder to install required depedencies for client
     OR
