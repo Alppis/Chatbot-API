@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 
 
 class MessageItem extends Component {
-    
+
     deleteMessage(id){
         this.props.onDelete(id);
     }
-    
+
     render() {
     console.log(this.props);
     return (

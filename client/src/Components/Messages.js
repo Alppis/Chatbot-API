@@ -3,17 +3,17 @@ import MessageItem from './MessageItem'
 
 class Messages extends Component {
 
-    deleteMessage(id){
+    deleteMessage = (id) => {
         this.props.onDelete(id);
     }
 
     render() {
     let messageItems;
     if(this.props.messages){
-        messageItems = this.props.messages.map(messages => {
+        messageItems = this.props.messages.map((message, i) => {
           //console.log(messages);
           return(
-            <MessageItem onDelete={this.deleteMessage.bind(this)} key={messages.msg} message={messages} />
+            <MessageItem key={i} onDelete={this.deleteMessage} message={message} />
             );
         });
     }

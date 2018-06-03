@@ -7,35 +7,36 @@ class AddMessage extends Component {
         this.state = {
             newMessage:{},
             username: undefined,
-            keyword: undefined
+            keyword: undefined,
+            msg: undefined
         }
     }
 
 
-    handleChannels(e){  
+    handleChannels(e){
         console.log('Channels');
     }
-    
-    handleSubmit(e){
-        if(this.refs.message.value === ''){
+
+    handleSubmit = (e) => {
+        if(this.state.msg === ''){
             alert('Message is required');
-        }else if(this.refs.username.value === ''){
+        }else if(this.state.username === ''){
             this.setState({newMessage:{
                 username: 'Anonymous',
-                msg: this.refs.message.value
+                msg: this.state.msg
             }}, function(){
                 //console.log(this.state);
                 this.props.addMessage(this.state.newMessage);
             });
         }else {
             this.setState({newMessage:{
-                username: this.refs.username.value,
-                msg: this.refs.message.value
+                username: this.state.username,
+                msg: this.state.msg
             }}, function(){
                 //console.log(this.state);
                 this.props.addMessage(this.state.newMessage);
             });
-        }        
+        }
         e.preventDefault();
     }
 
@@ -49,6 +50,12 @@ class AddMessage extends Component {
   setKeyword = (e) => {
     this.setState({
         keyword: e.target.value
+    });
+  }
+
+  setMessage = (e) => {
+    this.setState({
+      msg: e.target.value
     });
   }
 
@@ -71,31 +78,22 @@ class AddMessage extends Component {
 
 
 
-  
+
   render() {
     return (
         <div>
-
         <div>
-                
-                <label>Keyword</label><br />
-                <input type="text" onChange={this.setKeyword}  />
-                <button onClick={this.postNewKeyword} >Post new Keyword</button>
             </div>
-
-        <form onSubmit={this.handleSubmit.bind(this)}>
-
-
-
+        <form onSubmit={this.handleSubmit}>
             <div>
-                
+
                 <label>Username</label><br />
                 <input type="text" onChange={this.setUsername} />
             </div>
             <div>
                 <label>Message</label><br />
-                <input type="text" ref="message" />
-                <button  style={{marginLeft: 20}} onClick={this.handleChannels.bind(this)}>
+                <input type="text" onChange={this.setMessage} />
+                <button  style={{marginLeft: 20}} onClick={this.handleChannels}>
                     Channels
                 </button>
             </div>
