@@ -124,14 +124,12 @@ describe('Tests requests related to responses', function() {
     //Test creating new response POST with invalid json body format
     //Expected: response status 400
     it('Create new response with malformed JSON [POST]', function(done) {
+        var malJson = "response Mal, keyword: MJSON header '' username Anon";
         var options = {
             uri: appurl+"/responses",
             method: 'POST',
             json: {
-                "response19": "Mal",
-                "keyword": "MJSON",
-                "header": "",
-                "username": "Anonymous"
+                malJson
             } 
         };
         request(options,function(err, res, body) {
@@ -184,14 +182,12 @@ describe('Tests requests related to responses', function() {
     //Testing modifying response with non valid JSON body format
     //Expected: response status 400
     it('Modify single response with malformed JSON [PATCH]', function(done) {
+        var malJson = "response Mal, keyword: MJSON header '' username Anon";
         var options = {
             uri: appurl+"/responses/1",
             method: 'PATCH',
             json: {
-                "response19": "WhyIamMalformed?",
-                "keyword": "Mal",
-                "header": "10",
-                "username": "Anonymous"
+                malJson
             } 
         };
         request(options,function(err, res, body) {

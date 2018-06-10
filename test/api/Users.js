@@ -93,11 +93,12 @@ describe('Tests requests related to users', function() {
     //Test creating new user POST with invalid json body format
     //Expected: response status 400
     it('Create new user with malformed JSON [POST]', function(done) {
+        var malJson = "username Iammaljson";
         var options = {
             uri: appurl+"/users",
             method: 'POST',
             json: {
-                "username18": "Iamnotgood"
+                malJson
             } 
         };
         request(options,function(err, res, body) {
@@ -144,11 +145,12 @@ describe('Tests requests related to users', function() {
     //Testing modifying user with non valid JSON body format
     //Expected: response status 400
     it('Modify single user with malformed JSON [PATCH]', function(done) {
+        var malJson = "username Iammaljson";
         var options = {
             uri: appurl+"/users/1",
             method: 'PATCH',
             json: {
-                "user18": "Iammal"
+                malJson
             } 
         };
         request(options,function(err, res, body) {

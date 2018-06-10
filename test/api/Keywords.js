@@ -95,12 +95,12 @@ describe('Tests requests related to keywords', function() {
     //Test creating new keyword POST with invalid json body format
     //Expected: response status 400
     it('Create new keyword with malformed JSON [POST]', function(done) {
+        var malJson = "keyword MalJSON cases: 0";
         var options = {
             uri: appurl+"/keywords",
             method: 'POST',
             json: {
-                "keyword18": "MalJSON",
-                "cases": 0
+                malJson
             } 
         };
         request(options,function(err, res, body) {
@@ -149,12 +149,12 @@ describe('Tests requests related to keywords', function() {
     //Testing modifying keyword with non valid JSON body format
     //Expected: response status 400
     it('Modify single keyword with malformed JSON [PATCH]', function(done) {
+        var malJson = "keyword MalJSON cases: 0";
         var options = {
             uri: appurl+"/keywords/1",
             method: 'PATCH',
             json: {
-                "keyword18": "NotvalidJSON",
-                "cases": 0
+                malJson
             } 
         };
         request(options,function(err, res, body) {
